@@ -556,12 +556,12 @@ if not Masks_disjoint_complete(endlist):
 
 # make flowchart from list of masks
 plot_flowchart = True
+plot_verbose = False
 try:
     import pygraphviz as pgv
 except ImportError:
     print 'no pygraphviz; cannot make visual flowchart'
     plot_flowchart = False
-plot_verbose = False
 if plot_flowchart:
 
     PW = 60.
@@ -840,8 +840,8 @@ plt.savefig('size_dist_classes')
 
 # plot nearest neighbour distribution
 f,ax = pp.paper_single_ax()
-ax.hist(f_nn_sep2d.to('arcsec').value, bins=100, histtype='step', label='All')
-ax.hist(f_nn_sep2d.to('arcsec').value[M_S.mask], bins=100, histtype='step', label='S')
+ax.hist(lofarcat['NN_sep'], bins=100, histtype='step', label='All')
+ax.hist(lofarcat['NN_sep'][M_S.mask], bins=100, histtype='step', label='S')
 ax.set_xlabel('Nearest source [arcsec]')
 ax.set_ylabel('N')
 ax.legend()
@@ -851,7 +851,7 @@ plt.savefig('NNdist_dist')
 # 2D histogram : size-nearest neighbour distance
 # for 'S' sources
 f,ax = pp.paper_single_ax()
-X =  f_nn_sep2d.to('arcsec').value[~maskDC0&M_S.mask]
+X =  lofarcat['NN_sep'][~maskDC0&M_S.mask]
 Y = lofarcat['Maj'][~maskDC0&M_S.mask]
 H, xe, ye =  np.histogram2d( X, Y, bins=(100,100), normed=True)
 H2 = H.T
@@ -874,7 +874,7 @@ plt.savefig('size_NNdist_dist_s')
 
 # and 'M' sources
 f,ax = pp.paper_single_ax()
-X =  f_nn_sep2d.to('arcsec').value[~maskDC0&M_M.mask]
+X =  lofarcat['NN_sep'][~maskDC0&M_M.mask]
 Y = lofarcat['Maj'][~maskDC0&M_M.mask]
 H, xe, ye =  np.histogram2d( X, Y, bins=(100,100), normed=True)
 H2 = H.T
