@@ -11,11 +11,10 @@ import astropy.coordinates as ac
 import utils.plot_util as pp
 import os
 
-#class SubMaskError(Exception):
-    #'''raised if the submask is not a valid submask, i.e. contains masked points when the parent is unmasked
-    #'''
 
 class Mask:
+    '''Mask store a boolean mask and associated information necessary for the flowchart
+    '''
     
     def __init__(self, mask, label, trait, level=0, verbose=True, masterlist=None, qlabel=None, color=None):
         self.mask = mask
@@ -107,6 +106,8 @@ class Mask:
     
     # make sample files
     def make_sample(self, cat, Nsample=100):
+        '''create a random subsample of the masked catalogue 'cat'
+        '''
         
         t = cat[self.mask]
         t = t[np.random.choice(np.arange(len(t)), Nsample)]
@@ -129,6 +130,8 @@ class Mask:
         return
         
 def Masks_disjoint_complete(masklist):
+    '''test whether a list of masks is disjoint and complete
+    '''
     Z = np.zeros(len(masklist[0].mask), dtype=bool)
     O = np.ones(len(masklist[0].mask), dtype=bool)
     for t in masklist:
@@ -137,26 +140,6 @@ def Masks_disjoint_complete(masklist):
     
     return np.all(O) and np.all(~Z)
 
-
-#class SubMask(Mask):
-    
-    #def __init__(self, parent, name, mask, label, traits, verbose=False):
-        #Mask.__init__(self, name, mask, label, traits, verbose)
-        
-        ## update some attributes for submask
-        #self.parent = parent
-        
-        #self.mask = self.parent.mask & mask
-        #self.level = self.parent.level + 1
-        #self.traits = list(self.parent.traits).append(traits)
-        
-        #return
-    
-    #def isvalid(self):
-        #if np.any(~(self.parent.mask) & self.mask):
-            #raise SubMaskError('Improper submask')
-        #return True
-    
 
 
 path = '/local/wwilliams/projects/radio_imaging/lofar_surveys/source_class/t1_dr1/'
