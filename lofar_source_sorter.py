@@ -142,6 +142,9 @@ def Masks_disjoint_complete(masklist):
 
 
 
+### Required INPUTS
+# lofar source catalogue, gaussian catalogue and ML catalogues for each
+
 path = '/local/wwilliams/projects/radio_imaging/lofar_surveys/source_class/t1_dr1/'
 lofargcat_file = path+'LOFAR_HBA_T1_DR1_catalog_v0.1.gaus.fits'
 lofarcat_file = path+'LOFAR_HBA_T1_DR1_catalog_v0.1.srl.fits'
