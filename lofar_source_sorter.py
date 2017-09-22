@@ -549,6 +549,7 @@ size_huge = 25.            # in arcsec
 #separation1 = 30.          # in arcsec
 lLR_thresh = 0.36            # LR threshold
 fluxcut = 10               # in mJy
+fluxcut2 = 2.5               # in mJy
 
 Ncat = len(lofarcat)
 
