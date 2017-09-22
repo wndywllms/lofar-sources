@@ -151,11 +151,21 @@ def Masks_disjoint_complete(masklist):
 ### Required INPUTS
 # lofar source catalogue, gaussian catalogue and ML catalogues for each
 
-path = '/local/wwilliams/projects/radio_imaging/lofar_surveys/source_class/t1_dr1/'
-lofargcat_file = path+'LOFAR_HBA_T1_DR1_catalog_v0.1.gaus.fits'
-lofarcat_file = path+'LOFAR_HBA_T1_DR1_catalog_v0.1.srl.fits'
-psmlcat_file = path+'lofar_matched_all.fix.fits'
-psmlgcat_file = path+'lofar_matched_gaus.fits'
+#path = '/local/wwilliams/projects/radio_imaging/lofar_surveys/source_class/t1_dr1/'
+#lofargcat_file = path+'LOFAR_HBA_T1_DR1_catalog_v0.1.gaus.fits'
+#lofarcat_file = path+'LOFAR_HBA_T1_DR1_catalog_v0.1.srl.fits'
+#psmlcat_file = path+'lofar_matched_all.fix.fits'
+#psmlgcat_file = path+'lofar_matched_gaus.fits'
+
+
+path = '/local/wwilliams/projects/radio_imaging/lofar_surveys/LoTSS-DR1-July21-2017/'
+lofargcat_file = path+'LOFAR_HBA_T1_DR1_catalog_v0.9.gaus.fits'
+lofarcat_file = path+'LOFAR_HBA_T1_DR1_catalog_v0.9.srl.fits'
+psmlcat_file = path+'lofar_pw.fits'
+psmlgcat_file = path+'lofar_gaus_pw.fits'
+
+
+
 
 # Gaus catalogue
 lofargcat = Table.read(lofargcat_file)
@@ -173,22 +183,22 @@ psmlgcat = Table.read(psmlgcat_file)
 
 ## match the gaussians to the sources
 
-# quicker to generate new unique names than match on 2 columns
-# get new unique source_id by combining mosaic and src id
-# replace string mosaic ID with unique int (perhaps there is a more logical mapping of mosaic name to int value)
-mid = lofargcat['Mosaic_ID']
-mid_unique = np.unique(mid)
-mid_int = np.array([np.where(mid_unique==m)[0][0] for m in mid])
-# combine with Source_id for unique ID
-g_src_id_new =   10000*mid_int + lofargcat['Source_id']
-lofargcat.add_column(Column(g_src_id_new, 'SID'))
+## quicker to generate new unique names than match on 2 columns
+## get new unique source_id by combining mosaic and src id
+## replace string mosaic ID with unique int (perhaps there is a more logical mapping of mosaic name to int value)
+#mid = lofargcat['Mosaic_ID']
+#mid_unique = np.unique(mid)
+#mid_int = np.array([np.where(mid_unique==m)[0][0] for m in mid])
+## combine with Source_id for unique ID
+#g_src_id_new =   10000*mid_int + lofargcat['Source_Name']
+#lofargcat.add_column(Column(g_src_id_new, 'SID'))
 
-mid = lofarcat['Mosaic_ID']
-mid_unique = np.unique(mid)
-mid_int = np.array([np.where(mid_unique==m)[0][0] for m in mid])
-# combine with Source_id for unique ID
-src_id_new =   10000*mid_int + lofarcat['Source_id']
-lofarcat.add_column(Column(src_id_new, 'SID'))
+#mid = lofarcat['Mosaic_ID']
+#mid_unique = np.unique(mid)
+#mid_int = np.array([np.where(mid_unique==m)[0][0] for m in mid])
+## combine with Source_id for unique ID
+#src_id_new =   10000*mid_int + lofarcat['Source_Name']
+#lofarcat.add_column(Column(src_id_new, 'SID'))
 
 
 
@@ -201,21 +211,30 @@ c = ac.SkyCoord(lofarcat['RA'], lofarcat['DEC'], unit="deg")
 cpsml = ac.SkyCoord(psmlcat['RA'], psmlcat['DEC'], unit="deg")
 f_nn_idx,f_nn_sep2d,f_nn_dist3d = ac.match_coordinates_sky(c,cpsml,nthneighbor=1)
 
-psmlcat = psmlcat[f_nn_idx][f_nn_sep2d==0]
-lofarcat = lofarcat[f_nn_sep2d==0]
+#psmlcat = psmlcat[f_nn_idx][f_nn_sep2d==0]
+#lofarcat = lofarcat[f_nn_sep2d==0]
 
-lofarcat.add_column(Column(psmlcat['lr_pc_7th'], 'LR'))
+# note the large sources are missing from the ML catalogue
+lrcol = np.zeros(len(lofarcat),dtype=float)
+lrcol[f_nn_sep2d==0] = psmlcat['lr'][f_nn_idx][f_nn_sep2d==0]
+
+#lofarcat.add_column(Column(psmlcat['lr_pc_7th'], 'LR'))
+lofarcat.add_column(Column(lrcol, 'cLR'))
+lrcol[np.isnan(lrcol)] = 0
+lofarcat.add_column(Column(lrcol, 'LR'))
+
 
 # join the ps ml gaus cat  - they have identical RA/DEC (source_names were wrong)
 cg = ac.SkyCoord(lofargcat['RA'], lofargcat['DEC'], unit="deg")
 cpsmlg = ac.SkyCoord(psmlgcat['RA'], psmlgcat['DEC'], unit="deg")
 f_nn_idx_g,f_nn_sep2d_g,f_nn_dist3d_g = ac.match_coordinates_sky(cg,cpsmlg,nthneighbor=1)
 
-psmlgcat = psmlgcat[f_nn_idx_g][f_nn_sep2d_g==0]
-lofargcat = lofargcat[f_nn_sep2d_g==0]
+# note the large sources are missing from the ML catalogue
+lrgcol = np.zeros(len(lofargcat),dtype=float)
+lrgcol[f_nn_sep2d_g==0] = psmlgcat['lr'][f_nn_idx_g][f_nn_sep2d_g==0]
 
-lofargcat.add_column(Column(psmlgcat['lr_2'], 'LR'))
-
+#lofarcat.add_column(Column(psmlcat['lr_pc_7th'], 'LR'))
+lofargcat.add_column(Column(lrgcol, 'LR'))
 
 add_G = False   # add the gaussian information
 lofarcat.add_column(Column(np.ones(len(lofarcat),dtype=int), 'Ng'))
@@ -224,8 +243,8 @@ if add_G:
 
 m_S = lofarcat['S_Code'] =='S'
 minds = np.where(~m_S)[0]
-for i,sid in zip(minds, lofarcat['SID'][~m_S]):
-    ig = np.where(lofargcat['SID']==sid)[0]
+for i,sid in zip(minds, lofarcat['Source_Name'][~m_S]):
+    ig = np.where(lofargcat['Source_Name']==sid)[0]
     lofarcat['Ng'][i]= len(ig)
     
     if add_G:
