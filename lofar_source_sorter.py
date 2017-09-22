@@ -544,7 +544,7 @@ if calculate_intersections:
 # >15 " and 10mJY -2%
 
 size_large = 15.           # in arcsec
-separation1 = 60.          # in arcsec
+separation1 = 45.          # in arcsec
 size_huge = 25.            # in arcsec
 #separation1 = 30.          # in arcsec
 lLR_thresh = 1.            # LR threshold
