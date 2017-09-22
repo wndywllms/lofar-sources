@@ -560,12 +560,44 @@ masterlist = []
 M_all = Mask(lofarcat['RA'] > -1,
                 'All',
                 'all',
-                qlabel='Large?\n(s>{s:.0f}")'.format(s=size_large),
+                qlabel='artefact?',
                 masterlist=masterlist)
+
+M_all_artefact = M_all.submask(artefact,
+                    'Artefact',
+                    'artefact',
+                    edgelabel='Y',
+                    #qlabel='Bright?\n(S>{f:.0f} mJy)'.format(f=fluxcut, s=size_large),
+                    masterlist=masterlist)
+
+# large 
+M_all_clean = M_all.submask(~artefact,
+                    'Clean'.format(s=size_large),
+                    'src',
+                    edgelabel='N',
+                    #qlabel='Large?\n(s>{s:.0f}")'.format(s=size_large),
+                    qlabel='Huge 2MASX?',
+                    masterlist=masterlist)
 
 
 # large 
-M_large = M_all.submask(lofarcat['Maj'] > size_large,
+M_all_biggal = M_all_clean.submask((XLarge|Xhuge),
+                    'Huge 2MASX source',
+                    'big2MASX',
+                    edgelabel='Y',
+                    #qlabel='Bright?\n(S>{f:.0f} mJy)'.format(f=fluxcut, s=size_large),
+                    masterlist=masterlist)
+
+M_all_clean2 = M_all_clean.submask(~(XLarge|Xhuge),
+                    'Clean2'.format(s=size_large),
+                    'clean',
+                    edgelabel='N',
+                    qlabel='Large?\n(s>{s:.0f}")'.format(s=size_large),
+                    masterlist=masterlist)
+
+
+# large 
+M_large = M_all_clean2.submask(lofarcat['Maj'] > size_large,
                     'large (s>{s:.0f}")'.format(s=size_large),
                     'large',
                     qlabel='Bright?\n(S>{f:.0f} mJy)'.format(f=fluxcut, s=size_large),
