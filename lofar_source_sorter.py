@@ -28,7 +28,7 @@ class Mask:
         else:
             self.traits = list(trait)
             
-        self.name = 'm_'+'_'.join(self.traits)
+        self.name = '_'.join(self.traits)
             
         self.color = color
         self.level = level
@@ -79,18 +79,20 @@ class Mask:
         
     def submask(self, joinmask, label, newtrait, edgelabel='Y', verbose=True, qlabel=None, masterlist=None, color=None):
         '''create a new submask based on this instance -- join masks with AND
+        # qlabel  is the question that will be asked
+        # edgelabel is the answer to the question asked to get here
         '''
         newmask = self.mask & joinmask
         newtraits = list(self.traits)  # copy list of traits - lists are mutable!!
         newtraits.append(newtrait)     # append new trait onto copy
         newlevel = self.level + 1
         
-        childmask = Mask(newmask, label, newtraits, level=newlevel, masterlist=masterlist, verbose=verbose, qlabel=qlabel, color=color)
+        childmask = Mask(newmask, label, newtraits, level=newlevel, masterlist=masterlist, verbose=verbose, qlabel=qlabel, color=color)  
         
         childmask.has_parent = True
         childmask.parent = self
         
-        childmask.edgelabel = edgelabel
+        childmask.edgelabel = edgelabel  
         
         if not self.has_children:
             self.has_children = True
@@ -105,15 +107,19 @@ class Mask:
         return childmask
     
     # make sample files
-    def make_sample(self, cat, Nsample=100):
+    def make_sample(self, cat, Nsample=250):
         '''create a random subsample of the masked catalogue 'cat'
         '''
         
         t = cat[self.mask]
+        if Nsample is None:
+            Nsample = len(t)
+        Nsample = np.min((Nsample, len(t)))
+        if Nsample ==0 : return
         t = t[np.random.choice(np.arange(len(t)), Nsample)]
         fitsname = 'sample_'+self.name+'.fits'
         if os.path.exists(fitsname):
-            os.system('rm '+fitsname)
+            os.remove(fitsname)
         t.write(fitsname)
         
         return
