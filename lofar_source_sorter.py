@@ -254,6 +254,7 @@ for i,sid in zip(minds, lofarcat['Source_Name'][~m_S]):
 
 ## get 2MASX information
 xsc_file = path+'2MASX_hetdex_fix.fits'
+xsc = Table.read(xsc_file)
 
 c = ac.SkyCoord(lofarcat['RA'], lofarcat['DEC'], unit="deg")
 cxsc = ac.SkyCoord(xsc['ra'], xsc['dec'], unit="deg")
@@ -353,6 +354,26 @@ for m in [Xhuge, XLarge, Xlarge, Xsmall]:
     lofarcat['2MASX_ra'][m]  = xsc_nn['ra'][m]
     lofarcat['2MASX_dec'][m]  = xsc_nn['dec'][m]
     lofarcat['2MASX_size'][m]  = xsc_nn['r_ext'][m]
+
+
+# Large nearby galaxies - 2MASX > 300"
+filter_large = ['14031258+5420555',
+                '12185761+4718133',
+                '13295269+4711429',
+                '15155368+5619438',
+                '11113096+5540268']
+
+#NGC 5457
+#M106, NGC 4258
+#M51a, NGC 5194
+#NGC 5907
+#M108, NGC 3556
+
+for t in filter_large:
+    ind = xmatch & (xsc_nn['designation']==t)
+    ll = lofarcat[ind]
+    print ll
+    ll.write('LOFAR_{:s}.fits'
 
 
 #t=M_all.submask(huge , '2MASX_huge', '2MASX_huge')
