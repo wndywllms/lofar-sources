@@ -253,14 +253,7 @@ for i,sid in zip(minds, lofarcat['Source_Name'][~m_S]):
 
 
 ## get 2MASX information
-xsc_file = path+'2MASX_hetdex.fits'
-xsc = Table.read(xsc_file)
-xsc['r_ext'][xsc['designation']=='13174820+4702571    '] = 20. # fix known issue with one source - has bad size, use sdss size!
-xsc['r_ext'][xsc['designation']=='11244075+5218078    '] = 20. # fix known issue with one source - has bad size, use sdss size!
-xsc['r_ext'][xsc['designation']=='11435865+5600295    '] = 12. # fix known issue with one source - has bad size, use sdss size!
-xsc['r_ext'][xsc['designation']=='11095404+4859120    '] = 13. # fix known issue with one source - has bad size, use sdss size!
-xsc['r_ext'][xsc['designation']=='11393585+5555286    '] = 13. # fix known issue with one source - has bad size, use sdss size!
-
+xsc_file = path+'2MASX_hetdex_fix.fits'
 
 c = ac.SkyCoord(lofarcat['RA'], lofarcat['DEC'], unit="deg")
 cxsc = ac.SkyCoord(xsc['ra'], xsc['dec'], unit="deg")
