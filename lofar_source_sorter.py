@@ -164,6 +164,7 @@ lofarcat_file = path+'LOFAR_HBA_T1_DR1_catalog_v0.9.srl.fits'
 psmlcat_file = path+'lofar_pw.fits'
 psmlgcat_file = path+'lofar_gaus_pw.fits'
 
+lofarcat_file_srt = path+'LOFAR_HBA_T1_DR1_catalog_v0.9.srl.sorted.fits'
 
 
 
@@ -356,24 +357,6 @@ for m in [Xhuge, XLarge, Xlarge, Xsmall]:
     lofarcat['2MASX_size'][m]  = xsc_nn['r_ext'][m]
 
 
-# Large nearby galaxies - 2MASX > 300"
-filter_large = ['14031258+5420555',
-                '12185761+4718133',
-                '13295269+4711429',
-                '15155368+5619438',
-                '11113096+5540268']
-
-#NGC 5457
-#M106, NGC 4258
-#M51a, NGC 5194
-#NGC 5907
-#M108, NGC 3556
-
-for t in filter_large:
-    ind = xmatch & (xsc_nn['designation']==t)
-    ll = lofarcat[ind]
-    print ll
-    ll.write('LOFAR_{:s}.fits'
 
 
 #t=M_all.submask(huge , '2MASX_huge', '2MASX_huge')
@@ -1047,6 +1030,13 @@ for t in masterlist:
 if not Masks_disjoint_complete(endlist):
     print 'WARNING: children aren\'t disjoint and complete'
 
+
+
+## write output file
+
+if os.path.exists(lofarcat_file_srt):
+    os.path.remove(lofarcat_file_srt)
+lofarcat.write(lofarcat_file_srt)
 
 # make flowchart from list of masks
 plot_flowchart = True
