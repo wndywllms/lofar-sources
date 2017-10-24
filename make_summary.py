@@ -1,3 +1,11 @@
+#!/usr/bin/python
+
+'''
+make_summary
+produce a summary pdfs with all the postage stamps in the given classes
+'''
+
+
 import glob
 import os
 import sys
