@@ -1,3 +1,10 @@
+#!/usr/bin/python
+
+'''
+get_intersecting_sources
+find which sources in a catalogue intersect, enclose or are enclosed by another source...
+'''
+
 from lofar_source_sorter import Mask, Masks_disjoint_complete
 import numpy as np
 from shapely.geometry.polygon import LinearRing
