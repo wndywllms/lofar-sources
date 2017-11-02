@@ -253,33 +253,12 @@ if __name__=='__main__':
             lofarcat['G_ind'][i]= ig
 
 
+    # get the large 2masx sources (must run match_2masx for these)
+    big2masx = lofarcat['2MASX_match_large']
 
 
-
-    ## get artefact information
-
-    # for now, no artefacts
-    artefact = np.zeros(len(lofarcat),dtype=bool)
-    if 'aretefact' not in lofarcat.colnames:
-        lofarcat.add_column(Column(artefact,'artefact'))
-        
-
-    #artefact = np.zeros(len(lofarcat),dtype=bool)
-    ##bright compact sources
-    #selind1 = np.where((lofarcat['Maj'] < 8.) & (lofarcat['Total_flux'] > 100.))[0]
-    #c = ac.SkyCoord(lofarcat['RA'][selind1], lofarcat['DEC'][selind1], unit="deg")
-    ## faint large roundish sources
-    #selind = np.where((lofarcat['Maj'] > 30.) & (lofarcat['Min']/lofarcat['Maj'] > 0.5) & (lofarcat['Total_flux'] < 10.))[0]
-    #for ii in selind:
-        #l = lofarcat[ii]
-        #cl = ac.SkyCoord([l['RA']], [l['DEC']], unit="deg")
-        #idx1, idxself, sep, _ =  cl.search_around_sky(c, l['Maj']*u.arcsec)
-        #if len(idx1) > 0:
-            #artefact[ii] = 1
-    
-    artefact = np.zeros(len(lofarcat),dtype=bool)
-    selind1 = np.where((lofarcat['Maj'] < 8.) & (lofarcat['Total_flux'] > 100.))[0]
-    c = ac.SkyCoord(lofarcat['RA'][selind1], lofarcat['DEC'][selind1], unit="deg")
+    ## get artefact information (must run find_artefacts for these)
+    artefact = lofarcat[artefact]
         
 
     #############################################################################
