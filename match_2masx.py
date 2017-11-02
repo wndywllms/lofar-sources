@@ -141,4 +141,9 @@ for m in [Xhuge, XLarge, Xlarge, Xsmall]:
 
 #accept_match_2mass(xmatch1, lofarcat, xsc_nn, selname='ILTJ113935.922+555529.21', plot=True)
 
-lofarcat.writeto(lofarcat_file_srt)
+
+## write output file
+
+if os.path.exists(lofarcat_file_srt):
+    os.remove(lofarcat_file_srt)
+lofarcat.write(lofarcat_file_srt)

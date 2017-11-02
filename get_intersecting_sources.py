@@ -120,4 +120,9 @@ if calculate_intersections:
     
 
 
-lofarcat.writeto(lofarcat_file_srt)
+
+## write output file
+
+if os.path.exists(lofarcat_file_srt):
+    os.remove(lofarcat_file_srt)
+lofarcat.write(lofarcat_file_srt)
