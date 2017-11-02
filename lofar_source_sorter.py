@@ -517,21 +517,21 @@ if __name__=='__main__':
                         qlabel='Accept LR',
                         masterlist=masterlist)
 
-    # compact isolated good lr
-    M_small_isol_S_lr_2masx = M_small_isol_S_lr.submask(lofarcat['2MASX'],
-                        '2MASX'.format(s=size_large, nn=separation1),
-                        '2masx',
-                        color='blue',
-                        qlabel='Accept LR',
-                        masterlist=masterlist)
+    ## compact isolated good lr
+    #M_small_isol_S_lr_2masx = M_small_isol_S_lr.submask(lofarcat['2MASX'],
+                        #'2MASX'.format(s=size_large, nn=separation1),
+                        #'2masx',
+                        #color='blue',
+                        #qlabel='Accept LR',
+                        #masterlist=masterlist)
 
-    # compact isolated good lr
-    M_small_isol_S_lr_n2masx = M_small_isol_S_lr.submask(~lofarcat['2MASX'],
-                        'no 2MASX'.format(s=size_large, nn=separation1),
-                        'n2masx',
-                        color='blue',
-                        qlabel='Accept LR',
-                        masterlist=masterlist)
+    ## compact isolated good lr
+    #M_small_isol_S_lr_n2masx = M_small_isol_S_lr.submask(~lofarcat['2MASX'],
+                        #'no 2MASX'.format(s=size_large, nn=separation1),
+                        #'n2masx',
+                        #color='blue',
+                        #qlabel='Accept LR',
+                        #masterlist=masterlist)
 
     # compact isolated badd lr
     M_small_isol_S_nlr = M_small_isol_S.submask(np.log10(1+lofarcat['LR']) <= lLR_thresh,
@@ -543,21 +543,21 @@ if __name__=='__main__':
                         masterlist=masterlist)
 
 
-    # compact isolated good lr
-    M_small_isol_S_nlr_2masx = M_small_isol_S_nlr.submask(lofarcat['2MASX'],
-                        '2MASX'.format(s=size_large, nn=separation1),
-                        '2masx',
-                        color='blue',
-                        qlabel='Accept LR',
-                        masterlist=masterlist)
+    ## compact isolated good lr
+    #M_small_isol_S_nlr_2masx = M_small_isol_S_nlr.submask(lofarcat['2MASX'],
+                        #'2MASX'.format(s=size_large, nn=separation1),
+                        #'2masx',
+                        #color='blue',
+                        #qlabel='Accept LR',
+                        #masterlist=masterlist)
 
-    # compact isolated good lr
-    M_small_isol_S_nlr_n2masx = M_small_isol_S_nlr.submask(~lofarcat['2MASX'],
-                        'no 2MASX'.format(s=size_large, nn=separation1),
-                        'n2masx',
-                        color='blue',
-                        qlabel='Accept LR',
-                        masterlist=masterlist)
+    ## compact isolated good lr
+    #M_small_isol_S_nlr_n2masx = M_small_isol_S_nlr.submask(~lofarcat['2MASX'],
+                        #'no 2MASX'.format(s=size_large, nn=separation1),
+                        #'n2masx',
+                        #color='blue',
+                        #qlabel='Accept LR',
+                        #masterlist=masterlist)
 
     # compact isolated nS
     M_small_isol_nS = M_small_isol.submask(lofarcat['S_Code'] != 'S',
@@ -568,21 +568,21 @@ if __name__=='__main__':
                         qlabel='TBC?',
                         masterlist=masterlist)
 
-    # compact isolated good lr
-    M_small_isol_nS_2masx = M_small_isol_nS.submask(lofarcat['2MASX'],
-                        '2MASX'.format(s=size_large, nn=separation1),
-                        '2masx',
-                        color='blue',
-                        qlabel='Accept 2MASX',
-                        masterlist=masterlist)
+    ## compact isolated good lr
+    #M_small_isol_nS_2masx = M_small_isol_nS.submask(lofarcat['2MASX'],
+                        #'2MASX'.format(s=size_large, nn=separation1),
+                        #'2masx',
+                        #color='blue',
+                        #qlabel='Accept 2MASX',
+                        #masterlist=masterlist)
 
-    # compact isolated good lr
-    M_small_isol_nS_n2masx = M_small_isol_nS.submask(~lofarcat['2MASX'],
-                        'no 2MASX'.format(s=size_large, nn=separation1),
-                        'n2masx',
-                        color='blue',
-                        qlabel='TBC',
-                        masterlist=masterlist)
+    ## compact isolated good lr
+    #M_small_isol_nS_n2masx = M_small_isol_nS.submask(~lofarcat['2MASX'],
+                        #'no 2MASX'.format(s=size_large, nn=separation1),
+                        #'n2masx',
+                        #color='blue',
+                        #qlabel='TBC',
+                        #masterlist=masterlist)
 
 
     ## compact isolated - 2MASX
