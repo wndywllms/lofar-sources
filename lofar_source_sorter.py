@@ -816,6 +816,14 @@ if __name__=='__main__':
         print 'WARNING: children aren\'t disjoint and complete'
 
 
+    if 'FC_flag' not in lofarcat.colnames:
+        lofarcat.add_column(Column(np.zeros(len(lofarcat),dtype=int), 'FC_flag'))
+    i = 0
+    for t in masterlist:
+        if not t.has_children:
+            lofarcat['FC_flag'][t.mask] = i
+            i += 1
+            
 
     ## write output file
 
