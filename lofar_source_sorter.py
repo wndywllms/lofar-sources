@@ -161,7 +161,7 @@ if __name__=='__main__':
 
     path = '/local/wwilliams/projects/radio_imaging/lofar_surveys/LoTSS-DR1-July21-2017/'
     lofargcat_file = path+'LOFAR_HBA_T1_DR1_catalog_v0.9.gaus.fits'
-    lofarcat_file = path+'LOFAR_HBA_T1_DR1_catalog_v0.9.srl.fits'
+    lofarcat_file = path+'LOFAR_HBA_T1_DR1_catalog_v0.9.srl.presort.fits'
     psmlcat_file = path+'lofar_pw.fits'
     psmlgcat_file = path+'lofar_gaus_pw.fits'
 
@@ -258,7 +258,7 @@ if __name__=='__main__':
 
 
     ## get artefact information (must run find_artefacts for these)
-    artefact = lofarcat[artefact]
+    artefact = lofarcat['artefact']
         
 
     #############################################################################
@@ -287,10 +287,6 @@ if __name__=='__main__':
 
 
 
-    #artefact = np.zeros(len(lofarcat),dtype=bool)
-    #selind1 = np.where((lofarcat['Maj'] < 8.) & (lofarcat['Total_flux'] > 100.) & (lofarcat['NN5_sep'] < 60.))[0]
-    #artefact[selind] =1
-
 
 
     ########################################################
@@ -311,6 +307,7 @@ if __name__=='__main__':
     size_huge = 25.            # in arcsec
     #separation1 = 30.          # in arcsec
     lLR_thresh = 0.36            # LR threshold
+    lLR_thresh = 1.2            # LR threshold - stricter
     fluxcut = 10               # in mJy
     fluxcut2 = 2.5               # in mJy
 
@@ -440,7 +437,6 @@ if __name__=='__main__':
                         'n2masx',
                         edgelabel='N',
                         qlabel='Big?\n(S>{f:.0f} mJy)'.format(f=fluxcut2, s=2*size_large),
-                        color='orange',
                         masterlist=masterlist)
 
 
@@ -449,7 +445,7 @@ if __name__=='__main__':
                         'large (s>{s:.0f}") & v faint (S<={f:.0f} mJy)'.format(f=fluxcut2, s=2*size_large),
                         'huge',
                         edgelabel='Y',
-                        qlabel='TBC?',
+                        qlabel='(very large, but faint)\nTBC?',
                         color='orange',
                         masterlist=masterlist)
     # large faint 
@@ -457,16 +453,16 @@ if __name__=='__main__':
                         'large (s>{s:.0f}") & not v faint (S>{f:.0f} mJy)'.format(f=fluxcut2, s=2*size_large),
                         'nhuge',
                         edgelabel='N',
-                        qlabel='LR?',
-                        color='orange',
+                        qlabel='LR?\n(higher threshold?)',
+                        #color='orange',
                         masterlist=masterlist)
 
     M_large_faint_n2masx_nhuge_lr = M_large_faint_n2masx_nhuge.submask(np.log10(1+lofarcat['LR']) > lLR_thresh,
                         'LR'.format(f=fluxcut2, s=2*size_large),
                         'lr',
                         edgelabel='Y',
-                        qlabel='TBC?',
-                        color='orange',
+                        qlabel='accept LR?',
+                        color='cyan',
                         masterlist=masterlist)
 
     M_large_faint_n2masx_nhuge_nlr = M_large_faint_n2masx_nhuge.submask(np.log10(1+lofarcat['LR']) <= lLR_thresh,
@@ -669,7 +665,7 @@ if __name__=='__main__':
                         'NNlr',
                         edgelabel='Y',
                         color='blue',
-                        qlabel='accept LR?',
+                        qlabel='accept LR',
                         masterlist=masterlist)
 
     # compact not isolated, nnsmall, lr, NNnlr
@@ -677,8 +673,8 @@ if __name__=='__main__':
                         'compact not isolated (s<{s:.0f}", NN<{nn:.0f}") NN small (s<={s:.0f}"), good LR, NN bad lr'.format(s=size_large, nn=separation1),
                         'NNnlr',
                         edgelabel='N',
-                        color='orange',
-                        qlabel='TBC?',
+                        color='blue',
+                        qlabel='accept LR',
                         masterlist=masterlist)
 
     # compact not isolated, nnsmall, nlr
@@ -694,8 +690,8 @@ if __name__=='__main__':
                         'compact not isolated (s<{s:.0f}", NN<{nn:.0f}") NN small (s<={s:.0f}"), bad LR, NN good lr'.format(s=size_large, nn=separation1),
                         'NNlr',
                         edgelabel='Y',
-                        color='orange',
-                        qlabel='TBC?',
+                        color='red',
+                        qlabel='accept no LR',
                         masterlist=masterlist)
 
     # compact not isolated, nnsmall, nlr, NNnlr
@@ -703,26 +699,26 @@ if __name__=='__main__':
                         'compact not isolated (s<{s:.0f}", NN<{nn:.0f}") NN small (s<={s:.0f}"), bad LR, NN bad lr'.format(s=size_large, nn=separation1),
                         'NNnlr',
                         edgelabel='N',
-                        color='red',
-                        qlabel='flux ratio?',
+                        color='orange',
+                        qlabel='TBC?',
                         masterlist=masterlist)
 
 
-    M_small_nisol_nclustered_NNsmall_nlr_NNnlr_simflux = M_small_nisol_nclustered_NNsmall_nlr_NNnlr.submask((lofarcat['NN_Frat'] <= 1.2) & (lofarcat['NN_Frat'] > 0.6),
-                        'compact not isolated (s<{s:.0f}", NN<{nn:.0f}") NN small (s<={s:.0f}"), bad LR, NN bad lr, sim flux'.format(s=size_large, nn=separation1),
-                        'simflux',
-                        edgelabel='Y',
-                        color='red',
-                        qlabel='check?',
-                        masterlist=masterlist)
+    #M_small_nisol_nclustered_NNsmall_nlr_NNnlr_simflux = M_small_nisol_nclustered_NNsmall_nlr_NNnlr.submask((lofarcat['NN_Frat'] <= 1.2) & (lofarcat['NN_Frat'] > 0.6),
+                        #'compact not isolated (s<{s:.0f}", NN<{nn:.0f}") NN small (s<={s:.0f}"), bad LR, NN bad lr, sim flux'.format(s=size_large, nn=separation1),
+                        #'simflux',
+                        #edgelabel='Y',
+                        #color='red',
+                        #qlabel='check?',
+                        #masterlist=masterlist)
 
-    M_small_nisol_nclustered_NNsmall_nlr_NNnlr_diffflux = M_small_nisol_nclustered_NNsmall_nlr_NNnlr.submask((lofarcat['NN_Frat'] > 1.2) | (lofarcat['NN_Frat'] <= 0.6),
-                        'compact not isolated (s<{s:.0f}", NN<{nn:.0f}") NN small (s<={s:.0f}"), bad LR, NN bad lr, diffflux'.format(s=size_large, nn=separation1),
-                        'diffflux',
-                        edgelabel='N',
-                        color='red',
-                        qlabel='no match?',
-                        masterlist=masterlist)
+    #M_small_nisol_nclustered_NNsmall_nlr_NNnlr_diffflux = M_small_nisol_nclustered_NNsmall_nlr_NNnlr.submask((lofarcat['NN_Frat'] > 1.2) | (lofarcat['NN_Frat'] <= 0.6),
+                        #'compact not isolated (s<{s:.0f}", NN<{nn:.0f}") NN small (s<={s:.0f}"), bad LR, NN bad lr, diffflux'.format(s=size_large, nn=separation1),
+                        #'diffflux',
+                        #edgelabel='N',
+                        #color='red',
+                        #qlabel='no match?',
+                        #masterlist=masterlist)
 
     # other masks
 
@@ -975,6 +971,7 @@ if __name__=='__main__':
     #_ =ax.hist(np.log10(1.+lofarcat['LR'][m_small_isol_nS]), bins=100, normed=True, histtype='step', label=l_small_isol_nS)
     _ =ax.hist(np.log10(1.+lofarcat['LR'][M_small_nisol.mask]), bins=100, normed=True, histtype='step', label=M_small_nisol.label)
     _ =ax.hist(np.log10(1.+lofarcat['LR'][M_large.mask]), bins=100, normed=True, histtype='step', label=M_large.label)
+    _ =ax.hist(np.log10(1.+lofarcat['LR'][M_large_faint_n2masx_nhuge.mask]), bins=100, normed=True, histtype='step', label=M_large_faint_n2masx_nhuge.label)
     ax.legend()
     ax.set_ylim(0,2)
     ax.set_xlabel('$\log (1+LR)$')

@@ -8,21 +8,22 @@ find which sources in a catalogue intersect, enclose or are enclosed by another 
 from lofar_source_sorter import Mask, Masks_disjoint_complete
 import numpy as np
 from matplotlib import patches
-from astropy.table import Table
+from astropy.table import Table, join, Column
 import astropy.coordinates as ac
 import astropy.units as u
 import os
 
 
 path = '/local/wwilliams/projects/radio_imaging/lofar_surveys/LoTSS-DR1-July21-2017/'
-lofarcat_file_srt = path+'LOFAR_HBA_T1_DR1_catalog_v0.9.srl.sorted.fits'
+lofarcat_file = path+'LOFAR_HBA_T1_DR1_catalog_v0.9.srl.fits'
+lofarcat_file_psrt = path+'LOFAR_HBA_T1_DR1_catalog_v0.9.srl.presort.fits'
 
 
 
 
 
 
-lofarcat = Table.read(lofarcat_file_srt)
+lofarcat = Table.read(lofarcat_file)
 
 
 ## get 2MASX information (from 'fixed' catalgoue)
@@ -152,6 +153,6 @@ lofarcat['2MASX_match'] = Xlarge|Xsmall
 
 ## write output file
 
-if os.path.exists(lofarcat_file_srt):
-    os.remove(lofarcat_file_srt)
-lofarcat.write(lofarcat_file_srt)
+if os.path.exists(lofarcat_file_psrt):
+    os.remove(lofarcat_file_psrt)
+lofarcat.write(lofarcat_file_psrt)

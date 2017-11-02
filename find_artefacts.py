@@ -48,6 +48,12 @@ if 'aretefact' not in lofarcat.colnames:
 #artefact = np.zeros(len(lofarcat),dtype=bool)
 #selind1 = np.where((lofarcat['Maj'] < 8.) & (lofarcat['Total_flux'] > 100.))[0]
 #c = ac.SkyCoord(lofarcat['RA'][selind1], lofarcat['DEC'][selind1], unit="deg")
+
+
+
+#artefact = np.zeros(len(lofarcat),dtype=bool)
+#selind1 = np.where((lofarcat['Maj'] < 8.) & (lofarcat['Total_flux'] > 100.) & (lofarcat['NN5_sep'] < 60.))[0]
+#artefact[selind] =1
     
 
 ## write output file
