@@ -8,14 +8,14 @@ find which sources in a catalogue intersect, enclose or are enclosed by another 
 from lofar_source_sorter import Mask, Masks_disjoint_complete
 import numpy as np
 from matplotlib import patches
-from astropy.table import Table
+from astropy.table import Table, Column
 import astropy.coordinates as ac
 import astropy.units as u
 import os
 
 
 path = '/local/wwilliams/projects/radio_imaging/lofar_surveys/LoTSS-DR1-July21-2017/'
-lofarcat_file_srt = path+'LOFAR_HBA_T1_DR1_catalog_v0.9.srl.sorted.fits'
+lofarcat_file_srt = path+'LOFAR_HBA_T1_DR1_catalog_v0.9.srl.presort.fits'
 
 
 
