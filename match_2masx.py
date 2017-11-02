@@ -30,6 +30,8 @@ lofarcat = Table.read(lofarcat_file)
 xsc_file = path+'2MASX_hetdex_fix.fits'
 xsc = Table.read(xsc_file)
 
+Nxsc = len(xsc)
+
 c = ac.SkyCoord(lofarcat['RA'], lofarcat['DEC'], unit="deg")
 cxsc = ac.SkyCoord(xsc['ra'], xsc['dec'], unit="deg")
 f_nn_idx,f_nn_sep2d,f_nn_dist3d = ac.match_coordinates_sky(c,cxsc,nthneighbor=1)
@@ -138,6 +140,8 @@ lofarcat['2MASX_match'] = Xlarge|Xsmall
 
 
 
+print '{n:n} lofar sources have a possible 2MASX match'.format(n=sum(lofarcat['2MASX']))
+print '{n:n} 2MASX sources out of {nall:n} have a possible LOFAR match'.format(n=len(np.unique(lofarcat['2MASX_name']))-1,nall=Nxsc)
 
 #t=M_all.submask(huge , '2MASX_huge', '2MASX_huge')
 #t.make_sample(lofarcat)
