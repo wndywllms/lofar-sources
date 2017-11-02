@@ -254,10 +254,14 @@ if __name__=='__main__':
 
 
     # get the large 2masx sources (must run match_2masx for these)
+    if '2MASX_match_large' not in lofarcat.colnames:
+        raise  RuntimeError('need the 2masx information')
     big2masx = lofarcat['2MASX_match_large']
 
 
     ## get artefact information (must run find_artefacts for these)
+    if 'artefact' not in lofarcat.colnames:
+        raise  RuntimeError('need the artefact information')
     artefact = lofarcat['artefact']
         
 
