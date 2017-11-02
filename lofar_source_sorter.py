@@ -975,6 +975,7 @@ if __name__=='__main__':
     #_ =ax.hist(np.log10(1.+lofarcat['LR'][m_small_isol_nS]), bins=100, normed=True, histtype='step', label=l_small_isol_nS)
     _ =ax.hist(np.log10(1.+lofarcat['LR'][M_small_nisol.mask]), bins=100, normed=True, histtype='step', label=M_small_nisol.name.replace('_','\_'))
     _ =ax.hist(np.log10(1.+lofarcat['LR'][M_large.mask]), bins=100, normed=True, histtype='step', label=M_large.name.replace('_','\_'))
+    _ =ax.hist(np.log10(1.+lofarcat['LR'][M_large_faint_n2masx_huge.mask]), bins=100, normed=True, histtype='step', label=M_large_faint_n2masx_huge.name.replace('_','\_'))
     _ =ax.hist(np.log10(1.+lofarcat['LR'][M_large_faint_n2masx_nhuge.mask]), bins=100, normed=True, histtype='step', label=M_large_faint_n2masx_nhuge.name.replace('_','\_'))
     ax.legend()
     ax.set_ylim(0,2)
