@@ -365,14 +365,14 @@ if __name__=='__main__':
 
 
     # large 
-    M_all_biggal = M_all_clean.submask((XLarge|Xhuge),
+    M_all_biggal = M_all_clean.submask((big2masx),
                         'Huge 2MASX source',
                         'big2MASX',
                         edgelabel='Y',
                         #qlabel='Bright?\n(S>{f:.0f} mJy)'.format(f=fluxcut, s=size_large),
                         masterlist=masterlist)
 
-    M_all_clean2 = M_all_clean.submask(~(XLarge|Xhuge),
+    M_all_clean2 = M_all_clean.submask(~big2masx,
                         'Clean2'.format(s=size_large),
                         'clean',
                         edgelabel='N',

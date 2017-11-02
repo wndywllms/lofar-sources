@@ -96,10 +96,16 @@ if calculate_intersections:
                 cenclosed[j] = True
     if 'Encloses' not in lofarcat.colnames:
         lofarcat.add_column(Column(cencloses, 'Encloses'))
+    else:
+        lofarcat['Encloses'] = cencloses
     if 'Enclosed' not in lofarcat.colnames:
         lofarcat.add_column(Column(cenclosed, 'Enclosed'))
+    else:
+        lofarcat['Enclosed'] = cenclosed
     if 'Intersects' not in lofarcat.colnames:
         lofarcat.add_column(Column(cintersects, 'Intersects'))
+    else:
+        lofarcat['Intersects'] = cintersects
         
 
     M_encloses = Mask(lofarcat['Encloses'],

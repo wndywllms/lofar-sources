@@ -114,18 +114,26 @@ XLarge =  xmatch & (xsc_nn['r_ext'] >= 60.) & (xsc_nn['r_ext'] < 240.)
 Xlarge =  xmatch & (xsc_nn['r_ext'] >= 20.) & (xsc_nn['r_ext'] < 60.)
 Xsmall =  xmatch0 & (xsc_nn['r_ext'] >= 0.) & (xsc_nn['r_ext'] < 20.)
 
+# add the columns if we've not yet run this script
 if '2MASX' not in lofarcat.colnames:
     lofarcat.add_column(Column(np.zeros(len(lofarcat),dtype=bool),'2MASX'))
     lofarcat.add_column(Column(np.zeros(len(lofarcat),dtype='S20'),'2MASX_name'))
     lofarcat.add_column(Column(np.zeros(len(lofarcat),dtype=float),'2MASX_ra'))
     lofarcat.add_column(Column(np.zeros(len(lofarcat),dtype=float),'2MASX_dec'))
     lofarcat.add_column(Column(np.zeros(len(lofarcat),dtype=float),'2MASX_size'))
+    lofarcat.add_column(Column(np.zeros(len(lofarcat),dtype=bool),'2MASX_match_large'))
+    lofarcat.add_column(Column(np.zeros(len(lofarcat),dtype=bool),'2MASX_match'))
+    
 for m in [Xhuge, XLarge, Xlarge, Xsmall]:
     lofarcat['2MASX'][m]  = m[m]
     lofarcat['2MASX_name'][m]  = xsc_nn['designation'][m]
     lofarcat['2MASX_ra'][m]  = xsc_nn['ra'][m]
     lofarcat['2MASX_dec'][m]  = xsc_nn['dec'][m]
     lofarcat['2MASX_size'][m]  = xsc_nn['r_ext'][m]
+    
+    
+lofarcat['2MASX_match_large'] = XLarge|Xhuge
+lofarcat['2MASX_match'] = Xlarge|Xsmall
 
 
 
