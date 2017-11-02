@@ -340,7 +340,7 @@ if __name__=='__main__':
                         'src',
                         edgelabel='N',
                         #qlabel='Large?\n(s>{s:.0f}")'.format(s=size_large),
-                        qlabel='Huge 2MASX?',
+                        qlabel='Huge 2MASX?\n(r(2MASX)>60")',
                         masterlist=masterlist)
 
 
