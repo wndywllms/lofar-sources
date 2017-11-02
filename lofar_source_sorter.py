@@ -311,7 +311,7 @@ if __name__=='__main__':
     size_huge = 25.            # in arcsec
     #separation1 = 30.          # in arcsec
     lLR_thresh = 0.36            # LR threshold
-    lLR_thresh = 1.2            # LR threshold - stricter
+    lLR_thresh2 = 1.2            # LR threshold - stricter
     fluxcut = 10               # in mJy
     fluxcut2 = 2.5               # in mJy
 
@@ -437,10 +437,10 @@ if __name__=='__main__':
                         #masterlist=masterlist)
 
     M_large_faint_n2masx = M_large_faint.submask(~lofarcat['2MASX'],
-                        'large (s>{s:.0f}") & !2MASX'.format(f=fluxcut2, s=size_large),
+                        'large (s>{s:.0f}") & !2MASX'.format(s=size_large),
                         'n2masx',
                         edgelabel='N',
-                        qlabel='Big?\n(S>{f:.0f} mJy)'.format(f=fluxcut2, s=2*size_large),
+                        qlabel='Big?\n(s>{s:.0f}")'.format(s=2*size_large),
                         masterlist=masterlist)
 
 
@@ -450,18 +450,18 @@ if __name__=='__main__':
                         'huge',
                         edgelabel='Y',
                         qlabel='(very large, but faint)\nTBC?',
-                        color='orange',
+                        color='aquamarine',
                         masterlist=masterlist)
     # large faint 
     M_large_faint_n2masx_nhuge = M_large_faint_n2masx.submask(lofarcat['Maj'] <= 2*size_large,
                         'large (s>{s:.0f}") & not v faint (S>{f:.0f} mJy)'.format(f=fluxcut2, s=2*size_large),
                         'nhuge',
                         edgelabel='N',
-                        qlabel='LR?\n(higher threshold?)',
+                        qlabel='LR?\n(higher threshold {l:0.1f}?)'.format(l=lLR_thresh2),
                         #color='orange',
                         masterlist=masterlist)
 
-    M_large_faint_n2masx_nhuge_lr = M_large_faint_n2masx_nhuge.submask(np.log10(1+lofarcat['LR']) > lLR_thresh,
+    M_large_faint_n2masx_nhuge_lr = M_large_faint_n2masx_nhuge.submask(np.log10(1+lofarcat['LR']) > lLR_thresh2,
                         'LR'.format(f=fluxcut2, s=2*size_large),
                         'lr',
                         edgelabel='Y',
@@ -469,12 +469,12 @@ if __name__=='__main__':
                         color='cyan',
                         masterlist=masterlist)
 
-    M_large_faint_n2masx_nhuge_nlr = M_large_faint_n2masx_nhuge.submask(np.log10(1+lofarcat['LR']) <= lLR_thresh,
+    M_large_faint_n2masx_nhuge_nlr = M_large_faint_n2masx_nhuge.submask(np.log10(1+lofarcat['LR']) <= lLR_thresh2,
                         'NLR'.format(f=fluxcut2, s=2*size_large),
                         'nlr',
                         edgelabel='Y',
                         qlabel='TBC?',
-                        color='orange',
+                        color='aquamarine',
                         masterlist=masterlist)
 
 
@@ -497,7 +497,7 @@ if __name__=='__main__':
     M_small_isol_S = M_small_isol.submask(lofarcat['S_Code'] == 'S',
                         'compact isolated (s<{s:.0f}", NN>{nn:.0f}") S'.format(s=size_large, nn=separation1),
                         'S',
-                        qlabel='LR?',
+                        qlabel='LR > {l:.2f}?'.format(l=lLR_thresh),
                         masterlist=masterlist)
 
 
@@ -607,8 +607,8 @@ if __name__=='__main__':
                         'compact not isolated (s<{s:.0f}", NN5<{nn:.0f}")'.format(s=size_large, nn=separation1),
                         'clustered',
                         edgelabel='Y',
-                        qlabel='problem',
-                        color='orange',
+                        qlabel='problem?',
+                        color='aquamarine',
                         masterlist=masterlist)
 
     M_small_nisol_nclustered = M_small_nisol.submask(lofarcat['NN5_sep'] > separation1,
@@ -628,14 +628,33 @@ if __name__=='__main__':
                         masterlist=masterlist)
 
 
-    # compact not isolated, nnlarge
+    # compact not isolated, nnlarge, nnbright
     M_small_nisol_nclustered_NNlarge_NNbright = M_small_nisol_nclustered_NNlarge.submask(lofarcat['NN_Total_flux'] > fluxcut,
                         'compact not isolated (s<{s:.0f}", NN<{nn:.0f}") NN large (s>{s:.0f}") NN bright (S>{f:.0f} mJy)'.format(s=size_large, nn=separation1, f=fluxcut),
                         'NNbright',
                         edgelabel='Y',
-                        color='green',
-                        qlabel='NN in VC list',
+                        #color='green',
+                        qlabel='NN in VC list\nLR > {l:.2f}?'.format(l=lLR_thresh),
                         masterlist=masterlist)
+
+    # compact not isolated, nnlarge, nnbright
+    M_small_nisol_nclustered_NNlarge_NNbright_lr = M_small_nisol_nclustered_NNlarge_NNbright.submask(np.log10(1+lofarcat['LR']) > lLR_thresh,
+                        'compact not isolated (s<{s:.0f}", NN<{nn:.0f}") NN large (s>{s:.0f}") NN bright (S>{f:.0f} mJy)'.format(s=size_large, nn=separation1, f=fluxcut),
+                        'lr',
+                        edgelabel='Y',
+                        color='blue',
+                        qlabel='accept LR\nor VC assoc',
+                        masterlist=masterlist)
+
+    # compact not isolated, nnlarge, nnbright
+    M_small_nisol_nclustered_NNlarge_NNbright_nlr = M_small_nisol_nclustered_NNlarge_NNbright.submask(np.log10(1+lofarcat['LR']) <= lLR_thresh,
+                        'compact not isolated (s<{s:.0f}", NN<{nn:.0f}") NN large (s>{s:.0f}") NN bright (S>{f:.0f} mJy)'.format(s=size_large, nn=separation1, f=fluxcut),
+                        'nlr',
+                        edgelabel='N',
+                        color='red',
+                        qlabel='accept no LR\nor VC assoc',
+                        masterlist=masterlist)
+
 
     # compact not isolated, nnlarge
     M_small_nisol_nclustered_NNlarge_NNfaint = M_small_nisol_nclustered_NNlarge.submask(lofarcat['NN_Total_flux'] <= fluxcut,
@@ -652,7 +671,7 @@ if __name__=='__main__':
                         'compact not isolated (s<{s:.0f}", NN<{nn:.0f}") NN small (s<={s:.0f}")'.format(s=size_large, nn=separation1),
                         'NNsmall',
                         edgelabel='N',
-                        qlabel='LR?',
+                        qlabel='LR > {l:.2f}?'.format(l=lLR_thresh),
                         masterlist=masterlist)
 
     # compact not isolated, nnsmall, lr
@@ -660,7 +679,7 @@ if __name__=='__main__':
                         'compact not isolated (s<{s:.0f}", NN<{nn:.0f}") NN small (s<={s:.0f}"), good LR'.format(s=size_large, nn=separation1),
                         'lr',
                         edgelabel='Y',
-                        qlabel='NN LR?',
+                        qlabel='NN LR > {l:.2f}?'.format(l=lLR_thresh),
                         masterlist=masterlist)
 
     # compact not isolated, nnsmall, lr, NNlr
@@ -686,7 +705,7 @@ if __name__=='__main__':
                         'compact not isolated (s<{s:.0f}", NN<{nn:.0f}") NN small (s<={s:.0f}"), bad LR'.format(s=size_large, nn=separation1),
                         'nlr',
                         edgelabel='N',
-                        qlabel='NN LR?',
+                        qlabel='NN LR > {l:.2f}?'.format(l=lLR_thresh),
                         masterlist=masterlist)
 
     # compact not isolated, nnsmall, nlr, NNlr
