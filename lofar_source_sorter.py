@@ -852,13 +852,17 @@ if __name__=='__main__':
         #A.add_node('m_all', label='Large?'.format(n=M_all.N), shape='diamond') 
 
         A.add_edge('start', 'all', label='', penwidth=M_all.f*PW)
+        i = 0
         for t in masterlist:
+            
             
             if t.has_children:
                 shape='diamond'         # intermediate point is a question
+                label='{lab:s}\n{n:n}\n{p:.0f}%'.format(lab=t.qlabel,n=t.n,p=t.p)
             else:
                 shape='parallelogram'   # end point is a final mask
-            label='{lab:s}\n{n:n}\n{p:.0f}%'.format(lab=t.qlabel,n=t.n,p=t.p)
+                label='{i:n}\n{lab:s}\n{n:n}\n{p:.0f}%'.format(i=i,lab=t.qlabel,n=t.n,p=t.p)
+                i += 1
             if t.color:
                 c = t.color
             else:
