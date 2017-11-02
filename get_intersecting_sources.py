@@ -117,3 +117,7 @@ if calculate_intersections:
     M_encloses.make_sample(lofarcat)
     M_enclosed.make_sample(lofarcat)
     M_intersects.make_sample(lofarcat)
+    
+
+
+lofarcat.writeto(lofarcat_file_srt)
