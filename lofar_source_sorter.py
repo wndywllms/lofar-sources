@@ -116,7 +116,7 @@ class Mask:
             Nsample = len(t)
         Nsample = np.min((Nsample, len(t)))
         if Nsample ==0 : return
-        t = t[np.random.choice(np.arange(len(t)), Nsample)]
+        t = t[np.random.choice(np.arange(len(t)), Nsample, replace=False)]
         fitsname = 'sample_'+self.name+'.fits'
         if os.path.exists(fitsname):
             os.remove(fitsname)
