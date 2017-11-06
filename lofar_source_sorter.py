@@ -396,13 +396,32 @@ if __name__=='__main__':
     M_large_faint = M_large.submask(lofarcat['Total_flux'] <= fluxcut,
                         'large (s>{s:.0f}") & faint (S<={f:.0f} mJy)'.format(f=fluxcut, s=size_large),
                         'faint',
-                        qlabel='2MASX?',
                         edgelabel='N',
+                        qlabel='Big?\n(s>{s:.0f}")'.format(s=2*size_large),
                         #color='orange',
                         masterlist=masterlist)
 
+
     # large faint 
-    M_large_faint_2masx = M_large_faint.submask(lofarcat['2MASX'],
+    M_large_faint_huge = M_large_faint.submask(lofarcat['Maj'] > 2*size_large,
+                        'large (s>{s:.0f}") & v faint (S<={f:.0f} mJy)'.format(f=fluxcut2, s=2*size_large),
+                        'huge',
+                        edgelabel='Y',
+                        qlabel='(very large, but faint)\nTBC?',
+                        color='aquamarine',
+                        masterlist=masterlist)
+    # large faint 
+    M_large_faint_nhuge = M_large_faint.submask(lofarcat['Maj'] <= 2*size_large,
+                        'large (s>{s:.0f}") & not v faint (S>{f:.0f} mJy)'.format(f=fluxcut2, s=2*size_large),
+                        'nhuge',
+                        edgelabel='N',
+                        qlabel='2MASX?',
+                        #color='orange',
+                        masterlist=masterlist)
+
+
+    # large faint 
+    M_large_faint_nhuge_2masx = M_large_faint_nhuge.submask(lofarcat['2MASX'],
                         'large (s>{s:.0f}") & 2MASX'.format(f=fluxcut2, s=size_large),
                         '2masx',
                         edgelabel='Y',
@@ -410,7 +429,7 @@ if __name__=='__main__':
                         color='aquamarine',
                         masterlist=masterlist)
 
-    #M_large_faint_n2masx = M_large_faint.submask(~lofarcat['2MASX'],
+    #M_large_faint_nhuge_n2masx = M_large_faint_nhuge.submask(~lofarcat['2MASX'],
                         #'large (s>{s:.0f}") & !2MASX'.format(f=fluxcut2, s=size_large),
                         #'n2masx',
                         #edgelabel='N',
@@ -420,7 +439,7 @@ if __name__=='__main__':
 
 
     ## large faint 
-    #M_large_faint_n2masx_vfaint = M_large_faint_n2masx.submask(lofarcat['Total_flux'] <= fluxcut2,
+    #M_large_faint_nhuge_n2masx_vfaint = M_large_faint_nhuge_n2masx.submask(lofarcat['Total_flux'] <= fluxcut2,
                         #'large (s>{s:.0f}") & v faint (S<={f:.0f} mJy)'.format(f=fluxcut2, s=size_large),
                         #'vfaint',
                         #edgelabel='Y',
@@ -428,7 +447,7 @@ if __name__=='__main__':
                         #color='orange',
                         #masterlist=masterlist)
     ## large faint 
-    #M_large_faint_n2masx_nvfaint = M_large_faint_n2masx.submask(lofarcat['Total_flux'] > fluxcut2,
+    #M_large_faint_nhuge_n2masx_nvfaint = M_large_faint_nhuge_n2masx.submask(lofarcat['Total_flux'] > fluxcut2,
                         #'large (s>{s:.0f}") & not v faint (S>{f:.0f} mJy)'.format(f=fluxcut2, s=size_large),
                         #'nvfaint',
                         #edgelabel='N',
@@ -436,32 +455,16 @@ if __name__=='__main__':
                         #color='orange',
                         #masterlist=masterlist)
 
-    M_large_faint_n2masx = M_large_faint.submask(~lofarcat['2MASX'],
+    M_large_faint_nhuge_n2masx = M_large_faint_nhuge.submask(~lofarcat['2MASX'],
                         'large (s>{s:.0f}") & !2MASX'.format(s=size_large),
                         'n2masx',
-                        edgelabel='N',
-                        qlabel='Big?\n(s>{s:.0f}")'.format(s=2*size_large),
-                        masterlist=masterlist)
-
-
-    # large faint 
-    M_large_faint_n2masx_huge = M_large_faint_n2masx.submask(lofarcat['Maj'] > 2*size_large,
-                        'large (s>{s:.0f}") & v faint (S<={f:.0f} mJy)'.format(f=fluxcut2, s=2*size_large),
-                        'huge',
-                        edgelabel='Y',
-                        qlabel='(very large, but faint)\nTBC?',
-                        color='aquamarine',
-                        masterlist=masterlist)
-    # large faint 
-    M_large_faint_n2masx_nhuge = M_large_faint_n2masx.submask(lofarcat['Maj'] <= 2*size_large,
-                        'large (s>{s:.0f}") & not v faint (S>{f:.0f} mJy)'.format(f=fluxcut2, s=2*size_large),
-                        'nhuge',
-                        edgelabel='N',
                         qlabel='LR?\n(higher threshold {l:0.1f}?)'.format(l=lLR_thresh2),
-                        #color='orange',
+                        edgelabel='N',
                         masterlist=masterlist)
 
-    M_large_faint_n2masx_nhuge_lr = M_large_faint_n2masx_nhuge.submask(np.log10(1+lofarcat['LR']) > lLR_thresh2,
+
+
+    M_large_faint_nhuge_n2masx_lr = M_large_faint_nhuge_n2masx.submask(np.log10(1+lofarcat['LR']) > lLR_thresh2,
                         'LR'.format(f=fluxcut2, s=2*size_large),
                         'lr',
                         edgelabel='Y',
@@ -469,7 +472,7 @@ if __name__=='__main__':
                         color='cyan',
                         masterlist=masterlist)
 
-    M_large_faint_n2masx_nhuge_nlr = M_large_faint_n2masx_nhuge.submask(np.log10(1+lofarcat['LR']) <= lLR_thresh2,
+    M_large_faint_nhuge_n2masx_nlr = M_large_faint_nhuge_n2masx.submask(np.log10(1+lofarcat['LR']) <= lLR_thresh2,
                         'NLR'.format(f=fluxcut2, s=2*size_large),
                         'nlr',
                         edgelabel='Y',
@@ -1006,8 +1009,8 @@ if __name__=='__main__':
     #_ =ax.hist(np.log10(1.+lofarcat['LR'][m_small_isol_nS]), bins=100, normed=True, histtype='step', label=l_small_isol_nS)
     _ =ax.hist(np.log10(1.+lofarcat['LR'][M_small_nisol.mask]), bins=100, normed=True, histtype='step', label=M_small_nisol.name.replace('_','\_'))
     _ =ax.hist(np.log10(1.+lofarcat['LR'][M_large.mask]), bins=100, normed=True, histtype='step', label=M_large.name.replace('_','\_'))
-    _ =ax.hist(np.log10(1.+lofarcat['LR'][M_large_faint_n2masx_huge.mask]), bins=100, normed=True, histtype='step', label=M_large_faint_n2masx_huge.name.replace('_','\_'))
-    _ =ax.hist(np.log10(1.+lofarcat['LR'][M_large_faint_n2masx_nhuge.mask]), bins=100, normed=True, histtype='step', label=M_large_faint_n2masx_nhuge.name.replace('_','\_'))
+    _ =ax.hist(np.log10(1.+lofarcat['LR'][M_large_faint_huge.mask]), bins=100, normed=True, histtype='step', label=M_large_faint_huge.name.replace('_','\_'))
+    _ =ax.hist(np.log10(1.+lofarcat['LR'][M_large_faint_nhuge_n2masx.mask]), bins=100, normed=True, histtype='step', label=M_large_faint_nhuge_n2masx.name.replace('_','\_'))
     ax.legend()
     ax.set_ylim(0,2)
     ax.set_xlabel('$\log (1+LR)$')
