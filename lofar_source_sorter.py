@@ -805,7 +805,7 @@ if __name__=='__main__':
         for t in masterlist:
             if not t.has_children :
                 print t.name
-                t.make_sample(lofarcat,Nsample=250)
+                t.make_sample(lofarcat,Nsample=None)
 
     # test that the final masks are indeed mutually disjoint and cover all sources
     endlist = []
