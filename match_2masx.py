@@ -57,10 +57,12 @@ def accept_match_2mass(mask, lcat, xcat, plot=False, selname=None):
         
         tl = lcat[i]
         tx = xcat[i]
+        
+        lerr = np.max((tl['E_RA'],tl['E_DEC']))
             
         # assumning flat sky here...
         g_ell_center = (tx['ra'], tx['dec'])
-        r_a = (tx['r_ext']+ tl['Maj'] )  / 3600. #to deg
+        r_a = (tx['r_ext']+ lerr )  / 3600. #to deg
         r_b = r_a*tx['k_ba']
         angle = 90.-tx['k_phi']  #(anticlockwise from x-axis)
         rangle = angle *np.pi/180.
@@ -86,13 +88,13 @@ def accept_match_2mass(mask, lcat, xcat, plot=False, selname=None):
             ax.plot(tl['RA'], tl['DEC'], 'k.')
             ax.add_patch(g_ellipse)
             
-            l_ellipse = patches.Ellipse((tl['RA'], tl['DEC']), 2*tl['Maj']/ 3600., 2*tl['Min']/ 3600., angle=90.-tl['PA'], fill=False, ec='blue', linewidth=2)
+            l_ellipse = patches.Ellipse((tl['RA'], tl['DEC']), 2*lerr/ 3600., 2*tl['Min']/ 3600., angle=90.-tl['PA'], fill=False, ec='blue', linewidth=2)
             ax.add_patch(l_ellipse)
             
             if rad_cc <= 1:
                 ax.plot(tl['RA'], tl['DEC'], 'r+')
             
-            mell = g_ellipse.contains_point((tl['RA'], tl['DEC']), radius=tl['Maj']/3600)
+            mell = g_ellipse.contains_point((tl['RA'], tl['DEC']), radius=lerr/3600)
             if mell:
                 ax.plot(tl['RA'], tl['DEC'], 'gx')
             
@@ -106,16 +108,14 @@ def accept_match_2mass(mask, lcat, xcat, plot=False, selname=None):
         
     return inellipse
         
-xmatch0 = f_nn_sep2d.value*u.deg < np.array(xsc_nn['r_ext'])*u.arcsec
-xmatch1 = f_nn_sep2d.value*u.deg < np.array(xsc_nn['r_ext'] + lofarcat['Maj'])*u.arcsec
+#xmatch0 = f_nn_sep2d.value*u.deg < np.array(xsc_nn['r_ext'])*u.arcsec
+xmatch1 = f_nn_sep2d.value*u.deg < np.array(xsc_nn['r_ext'] + np.max((lofarcat['E_RA'],lofarcat['E_DEC']),axis=0))*u.arcsec
 
 inellipse = accept_match_2mass(xmatch1, lofarcat, xsc_nn)
 xmatch = xmatch1 & inellipse
 
-Xhuge =  xmatch & (xsc_nn['r_ext'] >= 240.)
-XLarge =  xmatch & (xsc_nn['r_ext'] >= 60.) & (xsc_nn['r_ext'] < 240.)
-Xlarge =  xmatch & (xsc_nn['r_ext'] >= 20.) & (xsc_nn['r_ext'] < 60.)
-Xsmall =  xmatch0 & (xsc_nn['r_ext'] >= 0.) & (xsc_nn['r_ext'] < 20.)
+Xhuge =  xmatch & (xsc_nn['r_ext'] >= 60.)
+Xsmall =  xmatch & (xsc_nn['r_ext'] >= 0.) & (xsc_nn['r_ext'] < 60.)
 
 # add the columns if we've not yet run this script
 if '2MASX' not in lofarcat.colnames:
@@ -127,7 +127,7 @@ if '2MASX' not in lofarcat.colnames:
     lofarcat.add_column(Column(np.zeros(len(lofarcat),dtype=bool),'2MASX_match_large'))
     lofarcat.add_column(Column(np.zeros(len(lofarcat),dtype=bool),'2MASX_match'))
     
-for m in [Xhuge, XLarge, Xlarge, Xsmall]:
+for m in [Xhuge, Xsmall]:
     lofarcat['2MASX'][m]  = m[m]
     lofarcat['2MASX_name'][m]  = xsc_nn['designation'][m]
     lofarcat['2MASX_ra'][m]  = xsc_nn['ra'][m]
@@ -135,8 +135,8 @@ for m in [Xhuge, XLarge, Xlarge, Xsmall]:
     lofarcat['2MASX_size'][m]  = xsc_nn['r_ext'][m]
     
     
-lofarcat['2MASX_match_large'] = XLarge|Xhuge
-lofarcat['2MASX_match'] = Xlarge|Xsmall
+lofarcat['2MASX_match_large'] = Xhuge
+lofarcat['2MASX_match'] = Xsmall
 
 
 
