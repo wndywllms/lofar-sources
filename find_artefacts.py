@@ -18,19 +18,21 @@ path = '/local/wwilliams/projects/radio_imaging/lofar_surveys/LoTSS-DR1-July21-2
 lofarcat_file_srt = path+'LOFAR_HBA_T1_DR1_catalog_v0.9.srl.fixed.presort.fits'
 
 
-
+artefactlistfile = 'gg_artefact_case1_3-fixed.fits'
 
 
 
 lofarcat = Table.read(lofarcat_file_srt)
 
-
+artefactlist = Table.read(artefactlistfile)
 
 # for now, no artefacts
 artefact = np.zeros(len(lofarcat),dtype=bool)
-if 'aretefact' not in lofarcat.colnames:
+if 'artefact' not in lofarcat.colnames:
     lofarcat.add_column(Column(artefact,'artefact'))
-    
+for n in artefactlist['Source_Name']:
+    ni = np.where(lofarcat['Source_Name']==n)[0][0]
+    lofarcat['artefact'][ni] = True    
 
 #artefact = np.zeros(len(lofarcat),dtype=bool)
 ##bright compact sources
