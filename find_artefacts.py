@@ -19,6 +19,7 @@ lofarcat_file_srt = path+'LOFAR_HBA_T1_DR1_catalog_v0.9.srl.fixed.presort.fits'
 
 
 artefactlistfile = 'gg_artefact_case1_3-fixed.fits'
+artefactlistfile = 'gg_artefact_case1_3-fixed-confirmed.fits'
 
 
 
