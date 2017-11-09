@@ -21,9 +21,13 @@ lofarcat_file_srt = path+'LOFAR_HBA_T1_DR1_catalog_v0.9.srl.fixed.presort.fits'
 
 lofarcat = Table.read(lofarcat_file_srt)
 
+### nhuge_2masx
+
 nhuge_2masx_vc_cat_file = 'fullsample/sample_all_src_clean_large_faint_nhuge_2masx-vflag.fits'
 nhuge_2masx_vc_cat = Table.read(nhuge_2masx_vc_cat_file)
 
+if 'nhuge_2masx_flag' in lofarcat.colnames:
+    lofarcat.remove_column('nhuge_2masx_flag')
 lofarcat.sort('Source_Name')
 tt=join(lofarcat, nhuge_2masx_vc_cat, join_type='left')
 tt['visual_flag'].fill_value = 0
@@ -33,6 +37,25 @@ tt.rename_column('visual_flag','nhuge_2masx_flag')
 
 
 lofarcat.add_column(tt['nhuge_2masx_flag'])
+
+### clustered
+
+
+clustered_vc_cat_file = 'fullsample/sample_all_src_clean_small_nisol_clustered-vflag.fits'
+clustered_vc_cat = Table.read(clustered_vc_cat_file)
+
+if 'clustered_flag' in lofarcat.colnames:
+    lofarcat.remove_column('clustered_flag')
+lofarcat.sort('Source_Name')
+tt=join(lofarcat, clustered_vc_cat, join_type='left')
+tt['visual_flag'].fill_value = 0
+tt = tt.filled()
+tt.sort('Source_Name')
+tt.rename_column('visual_flag','clustered_flag')
+
+
+lofarcat.add_column(tt['clustered_flag'])
+
 
 #################################################################################
 

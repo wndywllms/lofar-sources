@@ -251,6 +251,13 @@ if __name__=='__main__':
         if add_G:
             lofarcat['G_ind'][i]= ig
 
+
+
+    # get the visual flags (must run get_visual_flags for these after doing visual confirmation - classify_*.py)
+    if 'clustered_flag' not in lofarcat.colnames:
+        raise  RuntimeError('need the visual flag information for the clustered sources')
+    clustered_flag = lofarcat['clustered_flag']
+        
     if 'nhuge_2masx_flag' not in lofarcat.colnames:
         raise  RuntimeError('need the visual flag information for the large_nhuge_2masx sources')
     nhuge_2masx_flag = lofarcat['nhuge_2masx_flag']
@@ -625,18 +632,35 @@ if __name__=='__main__':
                         'compact not isolated (s<{s:.0f}", NN<{nn:.0f}")'.format(s=size_large, nn=separation1),
                         'nisol',
                         edgelabel='N',
-                        qlabel='Clustered?',
+                        qlabel='Clustered?\n(NN5<{nn:.0f}"))\n(visual confirmation)'.format(s=size_large, nn=separation1),
                         masterlist=masterlist)
 
-    M_small_nisol_clustered = M_small_nisol.submask(lofarcat['NN5_sep'] <= separation1,
-                        'compact not isolated (s<{s:.0f}", NN5<{nn:.0f}")'.format(s=size_large, nn=separation1),
-                        'clustered',
+    #M_small_nisol_clustered = M_small_nisol.submask((lofarcat['NN5_sep'] <= separation1) & (clustered_flag == 1),
+                        #'compact not isolated (s<{s:.0f}", NN4<{nn:.0f}")'.format(s=size_large, nn=separation1),
+                        #'clustered',
+                        #edgelabel='Y',
+                        #qlabel='problem?',
+                        #color='aquamarine',
+                        #masterlist=masterlist)
+    
+    
+    M_small_nisol_artefact = M_small_nisol.submask((lofarcat['NN5_sep'] <= separation1) & (clustered_flag == 1),
+                        'artefact',
+                        'artefact',
+                        edgelabel='N(r)',
+                        qlabel='artefact',
+                        color='gray',
+                        masterlist=masterlist)
+    
+    M_small_nisol_complex = M_small_nisol.submask((lofarcat['NN5_sep'] <= separation1) & (clustered_flag == 2),
+                        'complex',
+                        'complex',
                         edgelabel='Y',
-                        qlabel='problem?',
-                        color='aquamarine',
+                        qlabel='complex\n(LGZ)',
+                        color='green',
                         masterlist=masterlist)
 
-    M_small_nisol_nclustered = M_small_nisol.submask(lofarcat['NN5_sep'] > separation1,
+    M_small_nisol_nclustered = M_small_nisol.submask((lofarcat['NN5_sep'] > separation1) | ((lofarcat['NN5_sep'] <= separation1) & (clustered_flag == 3)),
                         'compact not isolated (s<{s:.0f}", NN5>{nn:.0f}")'.format(s=size_large, nn=separation1),
                         'nclustered',
                         edgelabel='N',
