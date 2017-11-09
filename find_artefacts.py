@@ -27,10 +27,16 @@ lofarcat = Table.read(lofarcat_file_srt)
 
 artefactlist = Table.read(artefactlistfile)
 
+#select only confirmed ones
+artefactlist = artefactlist[artefactlist['visual_flag']==1]
+
 # for now, no artefacts
 artefact = np.zeros(len(lofarcat),dtype=bool)
 if 'artefact' not in lofarcat.colnames:
     lofarcat.add_column(Column(artefact,'artefact'))
+else:
+    #rewrite artefact info
+    lofarcat['artefact'] *= False
 for n in artefactlist['Source_Name']:
     ni = np.where(lofarcat['Source_Name']==n)[0][0]
     lofarcat['artefact'][ni] = True    
