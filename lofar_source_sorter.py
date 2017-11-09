@@ -375,7 +375,7 @@ if __name__=='__main__':
     M_large_bright = M_large.submask(lofarcat['Total_flux'] > fluxcut,
                         'large (s>{s:.0f}") & bright (S>{f:.0f} mJy)'.format(f=fluxcut, s=size_large),
                         'bright',
-                        qlabel='VC',
+                        qlabel='LGZ',
                         color='green',
                         masterlist=masterlist)
 
@@ -425,30 +425,30 @@ if __name__=='__main__':
 
 
     # large faint 
-    M_large_faint_nhuge_2masx = M_large_faint_nhuge.submask(lofarcat['2MASX'] & nhuge_2masx_flag==1,
+    M_large_faint_nhuge_2masx = M_large_faint_nhuge.submask(lofarcat['2MASX'] & (nhuge_2masx_flag==1),
                         'large (s>{s:.0f}") & 2MASX'.format(f=fluxcut2, s=size_large),
                         '2masx',
                         edgelabel='Y',
                         qlabel='take 2MASX match\n(visually confirmed)',
-                        color='aquamarine',
+                        color='blue',
                         masterlist=masterlist)
     
     # large faint 
-    M_large_faint_nhuge_art = M_large_faint_nhuge.submask(lofarcat['2MASX'] & nhuge_2masx_flag==4,
+    M_large_faint_nhuge_art = M_large_faint_nhuge.submask(lofarcat['2MASX'] & (nhuge_2masx_flag==4),
                         'large (s>{s:.0f}") & 2MASX'.format(f=fluxcut2, s=size_large),
-                        '2masx',
-                        edgelabel='Y',
+                        'artefact',
+                        edgelabel='N(r)',
                         qlabel='artefact\n(visually confirmed)',
                         color='gray',
                         masterlist=masterlist)
 
     # large faint 
-    M_large_faint_nhuge_complex = M_large_faint_nhuge.submask(lofarcat['2MASX'] & nhuge_2masx_flag==2,
+    M_large_faint_nhuge_complex = M_large_faint_nhuge.submask(lofarcat['2MASX'] & (nhuge_2masx_flag==2),
                         'large (s>{s:.0f}") & 2MASX'.format(f=fluxcut2, s=size_large),
-                        '2masx',
-                        edgelabel='Y',
-                        qlabel='artefact\n(visually confirmed)',
-                        color='gray',
+                        'complex',
+                        edgelabel='N(*)',
+                        qlabel='complex\n(LGZ)',
+                        color='green',
                         masterlist=masterlist)
     
     #M_large_faint_nhuge_n2masx = M_large_faint_nhuge.submask(~lofarcat['2MASX'],
@@ -477,7 +477,7 @@ if __name__=='__main__':
                         #color='orange',
                         #masterlist=masterlist)
 
-    M_large_faint_nhuge_n2masx = M_large_faint_nhuge.submask(~lofarcat['2MASX'] | (lofarcat['2MASX'] & nhuge_2masx_flag==2),
+    M_large_faint_nhuge_n2masx = M_large_faint_nhuge.submask(~lofarcat['2MASX'] | (lofarcat['2MASX'] & (nhuge_2masx_flag==2)),
                         'large (s>{s:.0f}") & !2MASX'.format(s=size_large),
                         'n2masx',
                         qlabel='LR?\n(higher threshold {l:0.1f}?)'.format(l=lLR_thresh2),
@@ -915,6 +915,8 @@ if __name__=='__main__':
         #neato, dot, twopi, circo, fdp, nop, wc, acyclic, gvpr, gvcolor, ccomps, sccmap, tred, sfdp.
         A.layout('dot') # layout with dot
         A.draw('flow_s{s:.0f}_nn{nn:.0f}.png'.format(s=size_large,nn=separation1)) # write to file
+        A.write('flow_s{s:.0f}_nn{nn:.0f}.dot'.format(s=size_large,nn=separation1)) # write to file
+
 
 
 
