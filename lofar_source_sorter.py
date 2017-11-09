@@ -324,7 +324,7 @@ if __name__=='__main__':
     M_all = Mask(lofarcat['RA'] > -1,
                     'All',
                     'all',
-                    qlabel='artefact?',
+                    qlabel='artefact?\n(visually confirmed)',
                     masterlist=masterlist)
 
     M_all_artefact = M_all.submask(artefact,
