@@ -182,8 +182,6 @@ if __name__=='__main__':
     psmlcat = Table.read(psmlcat_file)
     psmlgcat = Table.read(psmlgcat_file)
 
-
-
     ## match the gaussians to the sources
 
     ## quicker to generate new unique names than match on 2 columns
@@ -253,6 +251,10 @@ if __name__=='__main__':
         if add_G:
             lofarcat['G_ind'][i]= ig
 
+    if 'nhuge_2masx_flag' not in lofarcat.colnames:
+        raise  RuntimeError('need the visual flag information for the large_nhuge_2masx sources')
+    nhuge_2masx_flag = lofarcat['nhuge_2masx_flag']
+        
 
     # get the large 2masx sources (must run match_2masx for these)
     if '2MASX_match_large' not in lofarcat.colnames:
@@ -325,13 +327,14 @@ if __name__=='__main__':
     M_all = Mask(lofarcat['RA'] > -1,
                     'All',
                     'all',
-                    qlabel='artefact?\n(visually confirmed)',
+                    qlabel='artefact?\n(visual confirmation)',
                     masterlist=masterlist)
 
     M_all_artefact = M_all.submask(artefact,
-                        'Artefact',
+                        'Artefact\n(visually confirmed)',
                         'artefact',
                         edgelabel='Y',
+                        color='gray',
                         #qlabel='Bright?\n(S>{f:.0f} mJy)'.format(f=fluxcut, s=size_large),
                         masterlist=masterlist)
 
@@ -416,20 +419,38 @@ if __name__=='__main__':
                         'large (s>{s:.0f}") & not v faint (S>{f:.0f} mJy)'.format(f=fluxcut2, s=2*size_large),
                         'nhuge',
                         edgelabel='N',
-                        qlabel='2MASX?',
+                        qlabel='2MASX?\n(visual confirmation)',
                         #color='orange',
                         masterlist=masterlist)
 
 
     # large faint 
-    M_large_faint_nhuge_2masx = M_large_faint_nhuge.submask(lofarcat['2MASX'],
+    M_large_faint_nhuge_2masx = M_large_faint_nhuge.submask(lofarcat['2MASX'] & nhuge_2masx_flag==1,
                         'large (s>{s:.0f}") & 2MASX'.format(f=fluxcut2, s=size_large),
                         '2masx',
                         edgelabel='Y',
-                        qlabel='take 2MASX match\n(VC confirmation?)',
+                        qlabel='take 2MASX match\n(visually confirmed)',
                         color='aquamarine',
                         masterlist=masterlist)
+    
+    # large faint 
+    M_large_faint_nhuge_art = M_large_faint_nhuge.submask(lofarcat['2MASX'] & nhuge_2masx_flag==4,
+                        'large (s>{s:.0f}") & 2MASX'.format(f=fluxcut2, s=size_large),
+                        '2masx',
+                        edgelabel='Y',
+                        qlabel='artefact\n(visually confirmed)',
+                        color='gray',
+                        masterlist=masterlist)
 
+    # large faint 
+    M_large_faint_nhuge_complex = M_large_faint_nhuge.submask(lofarcat['2MASX'] & nhuge_2masx_flag==2,
+                        'large (s>{s:.0f}") & 2MASX'.format(f=fluxcut2, s=size_large),
+                        '2masx',
+                        edgelabel='Y',
+                        qlabel='artefact\n(visually confirmed)',
+                        color='gray',
+                        masterlist=masterlist)
+    
     #M_large_faint_nhuge_n2masx = M_large_faint_nhuge.submask(~lofarcat['2MASX'],
                         #'large (s>{s:.0f}") & !2MASX'.format(f=fluxcut2, s=size_large),
                         #'n2masx',
@@ -456,7 +477,7 @@ if __name__=='__main__':
                         #color='orange',
                         #masterlist=masterlist)
 
-    M_large_faint_nhuge_n2masx = M_large_faint_nhuge.submask(~lofarcat['2MASX'],
+    M_large_faint_nhuge_n2masx = M_large_faint_nhuge.submask(~lofarcat['2MASX'] | (lofarcat['2MASX'] & nhuge_2masx_flag==2),
                         'large (s>{s:.0f}") & !2MASX'.format(s=size_large),
                         'n2masx',
                         qlabel='LR?\n(higher threshold {l:0.1f}?)'.format(l=lLR_thresh2),
@@ -873,7 +894,7 @@ if __name__=='__main__':
                 label='{lab:s}\n{n:n}\n{p:.0f}%'.format(lab=t.qlabel,n=t.n,p=t.p)
             else:
                 shape='parallelogram'   # end point is a final mask
-                label='{i:n}\n{lab:s}\n{n:n}\n{p:.0f}%'.format(i=i,lab=t.qlabel,n=t.n,p=t.p)
+                label='- {i:n} -\n{lab:s}\n{n:n}\n{p:.0f}%'.format(i=i,lab=t.qlabel,n=t.n,p=t.p)
                 i += 1
             if t.color:
                 c = t.color
@@ -903,7 +924,7 @@ if __name__=='__main__':
 
 
     if add_G:
-        lofarmcat = lofarcat[m_M]
+        lofarmcat = lofarcat[M_M.mask]
         sepmaxes = np.zeros(len(lofarmcat))
         classes = np.zeros(len(lofarmcat))
         for i in range(len(lofarmcat)):
