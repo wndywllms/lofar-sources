@@ -285,7 +285,7 @@ if __name__=='__main__':
     f_nn_idx,f_nn_sep2d,f_nn_dist3d = ac.match_coordinates_sky(c,c,nthneighbor=2)
 
     #f_nn3_idx,f_nn3_sep2d,f_nn3_dist3d = ac.match_coordinates_sky(c,c,nthneighbor=3)
-    #f_nn4_idx,f_nn4_sep2d,f_nn4_dist3d = ac.match_coordinates_sky(c,c,nthneighbor=4)
+    f_nn4_idx,f_nn4_sep2d,f_nn4_dist3d = ac.match_coordinates_sky(c,c,nthneighbor=4)
     f_nn5_idx,f_nn5_sep2d,f_nn5_dist3d = ac.match_coordinates_sky(c,c,nthneighbor=5)
     #f_nn6_idx,f_nn6_sep2d,f_nn6_dist3d = ac.match_coordinates_sky(c,c,nthneighbor=6)
 
@@ -295,6 +295,7 @@ if __name__=='__main__':
         lofarcat.add_column(Column(f_nn_sep2d.to(u.arcsec).value, 'NN_sep'))
         lofarcat.add_column(Column(f_nn_idx, 'NN_idx'))
         lofarcat.add_column(Column(f_nn5_sep2d.to(u.arcsec).value, 'NN5_sep'))
+        lofarcat.add_column(Column(f_nn4_sep2d.to(u.arcsec).value, 'NN4_sep'))
         lofarcat.add_column(Column(lofarcat['Total_flux'][f_nn_idx], 'NN_Total_flux'))
         lofarcat.add_column(Column(lofarcat['Total_flux']/lofarcat['NN_Total_flux'], 'NN_Frat'))
         lofarcat.add_column(Column(lofarcat['Maj'][f_nn_idx], 'NN_Maj'))
@@ -319,9 +320,9 @@ if __name__=='__main__':
     size_large = 15.           # in arcsec
     separation1 = 45.          # in arcsec
     size_huge = 25.            # in arcsec
-    #separation1 = 30.          # in arcsec
+    #separation2 = 30.          # in arcsec
     lLR_thresh = 0.36            # LR threshold
-    lLR_thresh2 = 1.2            # LR threshold - stricter
+    lLR_thresh2 = 0.72            # LR threshold - stricter
     fluxcut = 10               # in mJy
     fluxcut2 = 2.5               # in mJy
 
@@ -487,13 +488,60 @@ if __name__=='__main__':
     M_large_faint_nhuge_n2masx = M_large_faint_nhuge.submask(~lofarcat['2MASX'] | (lofarcat['2MASX'] & (nhuge_2masx_flag==2)),
                         'large (s>{s:.0f}") & !2MASX'.format(s=size_large),
                         'n2masx',
-                        qlabel='LR?\n(higher threshold {l:0.1f}?)'.format(l=lLR_thresh2),
+                        qlabel='Isolated?\n(NN>{nn:.0f}")'.format(nn=separation1 + size_large),
                         edgelabel='N',
                         masterlist=masterlist)
 
+    M_large_faint_nhuge_n2masx_nisol = M_large_faint_nhuge_n2masx.submask(lofarcat['NN_sep'] <= separation1 + size_large,
+                        'large not isolated (s<{s:.0f}", NN>{nn:.0f}")'.format(s=size_large, nn=separation1 + size_large),
+                        'nisol',
+                        edgelabel='N',
+                        qlabel='Clustered?\n(NN3<{nn:.0f}"))\n(visual confirmation)'.format(s=size_large, nn=separation1+size_large),
+                        masterlist=masterlist)
+    
+    M_large_faint_nhuge_n2masx_nisol_clustered = M_large_faint_nhuge_n2masx_nisol.submask(lofarcat['NN4_sep'] <= separation1+size_large,
+                        'clustered',
+                        'clustered',
+                        edgelabel='Y',
+                        qlabel='LGZ?',
+                        color='cyan',
+                        masterlist=masterlist)
+
+    M_large_faint_nhuge_n2masx_nisol_nclustered = M_large_faint_nhuge_n2masx_nisol.submask(lofarcat['NN4_sep'] > separation1+size_large,
+                        'nclustered',
+                        'nclustered',
+                        edgelabel='N',
+                        qlabel='TBC?',
+                        color='orange',
+                        masterlist=masterlist)
+    
+    
+    M_large_faint_nhuge_n2masx_nisol_nclustered_touching = M_large_faint_nhuge_n2masx_nisol_nclustered.submask(lofarcat['NN_sep'] <= (lofarcat['NN_Maj'] + lofarcat['Maj']), 
+                        'touching',
+                        'touching',
+                        edgelabel='Y',
+                        qlabel='touching?',
+                        color='orange',
+                        masterlist=masterlist)
+    
+    M_large_faint_nhuge_n2masx_nisol_nclustered_ntouching = M_large_faint_nhuge_n2masx_nisol_nclustered.submask(lofarcat['NN_sep'] > (lofarcat['NN_Maj'] + lofarcat['Maj']),
+                        'ntouching',
+                        'ntouching',
+                        edgelabel='N',
+                        qlabel='not touching?',
+                        color='orange',
+                        masterlist=masterlist)
+    
+    M_large_faint_nhuge_n2masx_isol = M_large_faint_nhuge_n2masx.submask(lofarcat['NN_sep'] > separation1 + size_large,
+                        'large isolated (s<{s:.0f}", NN>{nn:.0f}")'.format(s=size_large, nn=separation1 + size_large),
+                        'isol',
+                        edgelabel='Y',
+                        qlabel='LR > {l:.2f}?'.format(l=lLR_thresh2),
+                        #color='cyan',
+                        masterlist=masterlist)
 
 
-    M_large_faint_nhuge_n2masx_lr = M_large_faint_nhuge_n2masx.submask(np.log10(1+lofarcat['LR']) > lLR_thresh2,
+    M_large_faint_nhuge_n2masx_isol_lr = M_large_faint_nhuge_n2masx_isol.submask(np.log10(1+lofarcat['LR']) > lLR_thresh2,
                         'LR'.format(f=fluxcut2, s=2*size_large),
                         'lr',
                         edgelabel='Y',
@@ -501,12 +549,12 @@ if __name__=='__main__':
                         color='cyan',
                         masterlist=masterlist)
 
-    M_large_faint_nhuge_n2masx_nlr = M_large_faint_nhuge_n2masx.submask(np.log10(1+lofarcat['LR']) <= lLR_thresh2,
+    M_large_faint_nhuge_n2masx_isol_nlr = M_large_faint_nhuge_n2masx_isol.submask(np.log10(1+lofarcat['LR']) <= lLR_thresh2,
                         'NLR'.format(f=fluxcut2, s=2*size_large),
                         'nlr',
-                        edgelabel='Y',
+                        edgelabel='N',
                         qlabel='TBC?',
-                        color='aquamarine',
+                        color='orange',
                         masterlist=masterlist)
 
 
@@ -890,7 +938,7 @@ if __name__=='__main__':
         plot_flowchart = False
     if plot_flowchart:
 
-        PW = 65.
+        PW = 75.
 
         A=pgv.AGraph(directed=True, strict=True)
         A.edge_attr['arrowhead']='none'
