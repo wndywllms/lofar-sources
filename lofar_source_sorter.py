@@ -258,6 +258,11 @@ if __name__=='__main__':
         raise  RuntimeError('need the visual flag information for the clustered sources')
     clustered_flag = lofarcat['clustered_flag']
         
+    if 'Lclustered_flag' not in lofarcat.colnames:
+        raise  RuntimeError('need the visual flag information for the large faint clustered sources')
+    Lclustered_flag = lofarcat['Lclustered_flag']
+        
+        
     if 'nhuge_2masx_flag' not in lofarcat.colnames:
         raise  RuntimeError('need the visual flag information for the large_nhuge_2masx sources')
     nhuge_2masx_flag = lofarcat['nhuge_2masx_flag']
@@ -499,15 +504,24 @@ if __name__=='__main__':
                         qlabel='Clustered?\n(NN3<{nn:.0f}"))\n(visual confirmation)'.format(s=size_large, nn=separation1+size_large),
                         masterlist=masterlist)
     
-    M_large_faint_nhuge_n2masx_nisol_clustered = M_large_faint_nhuge_n2masx_nisol.submask(lofarcat['NN4_sep'] <= separation1+size_large,
-                        'clustered',
-                        'clustered',
+    
+    M_large_faint_nhuge_n2masx_nisol_art = M_large_faint_nhuge_n2masx_nisol.submask((lofarcat['NN4_sep'] <= separation1+size_large) & (Lclustered_flag == 1),
+                        'artefact',
+                        'artefact',
+                        edgelabel='N(r)',
+                        qlabel='artefact\n(visually confirmated)',
+                        color='gray',
+                        masterlist=masterlist)
+    
+    M_large_faint_nhuge_n2masx_nisol_clustered = M_large_faint_nhuge_n2masx_nisol.submask((lofarcat['NN4_sep'] <= separation1+size_large) & (Lclustered_flag == 2),
+                        'complex',
+                        'complex',
                         edgelabel='Y',
-                        qlabel='LGZ?',
-                        color='cyan',
+                        qlabel='complex\n(LGZ)',
+                        color='green',
                         masterlist=masterlist)
 
-    M_large_faint_nhuge_n2masx_nisol_nclustered = M_large_faint_nhuge_n2masx_nisol.submask(lofarcat['NN4_sep'] > separation1+size_large,
+    M_large_faint_nhuge_n2masx_nisol_nclustered = M_large_faint_nhuge_n2masx_nisol.submask((lofarcat['NN4_sep'] > separation1+size_large) | ((lofarcat['NN4_sep'] <= separation1+size_large) & (Lclustered_flag == 3)),
                         'nclustered',
                         'nclustered',
                         edgelabel='N',
@@ -696,7 +710,7 @@ if __name__=='__main__':
                         'artefact',
                         'artefact',
                         edgelabel='N(r)',
-                        qlabel='artefact',
+                        qlabel='artefact\n(visually confirmated)',
                         color='gray',
                         masterlist=masterlist)
     

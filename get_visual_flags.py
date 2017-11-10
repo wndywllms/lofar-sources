@@ -57,6 +57,28 @@ tt.rename_column('visual_flag','clustered_flag')
 lofarcat.add_column(tt['clustered_flag'])
 
 
+
+### large faint clustered
+
+
+Lclustered_vc_cat_file = 'testsample_large/sample_all_src_clean_large_faint_nhuge_n2masx_nisol_clustered-vflag.fits'
+Lclustered_vc_cat = Table.read(Lclustered_vc_cat_file)
+
+if 'Lclustered_flag' in lofarcat.colnames:
+    lofarcat.remove_column('Lclustered_flag')
+lofarcat.sort('Source_Name')
+tt=join(lofarcat, Lclustered_vc_cat, join_type='left')
+tt['visual_flag'].fill_value = 0
+tt = tt.filled()
+tt.sort('Source_Name')
+tt.rename_column('visual_flag','Lclustered_flag')
+
+
+lofarcat.add_column(tt['Lclustered_flag'])
+
+
+
+
 #################################################################################
 
 
