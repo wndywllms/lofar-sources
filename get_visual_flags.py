@@ -77,6 +77,25 @@ tt.rename_column('visual_flag','Lclustered_flag')
 lofarcat.add_column(tt['Lclustered_flag'])
 
 
+### huge faint
+
+
+huge_faint_vc_cat_file = 'fullsample/sample_all_src_clean_large_faint_huge-vflag.fits'
+huge_faint_vc_cat = Table.read(huge_faint_vc_cat_file)
+
+if 'huge_faint_flag' in lofarcat.colnames:
+    lofarcat.remove_column('huge_faint_flag')
+lofarcat.sort('Source_Name')
+tt=join(lofarcat, huge_faint_vc_cat, join_type='left')
+tt['visual_flag'].fill_value = 0
+tt = tt.filled()
+tt.sort('Source_Name')
+tt.rename_column('visual_flag','huge_faint_flag')
+
+
+lofarcat.add_column(tt['huge_faint_flag'])
+
+
 
 
 #################################################################################

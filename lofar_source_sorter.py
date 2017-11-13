@@ -262,6 +262,10 @@ if __name__=='__main__':
         raise  RuntimeError('need the visual flag information for the large faint clustered sources')
     Lclustered_flag = lofarcat['Lclustered_flag']
         
+    if 'huge_faint_flag' not in lofarcat.colnames:
+        raise  RuntimeError('need the visual flag information for the huge faint sources')
+    huge_faint_flag = lofarcat['huge_faint_flag']
+        
         
     if 'nhuge_2masx_flag' not in lofarcat.colnames:
         raise  RuntimeError('need the visual flag information for the large_nhuge_2masx sources')
@@ -414,19 +418,56 @@ if __name__=='__main__':
                         'large (s>{s:.0f}") & faint (S<={f:.0f} mJy)'.format(f=fluxcut, s=size_large),
                         'faint',
                         edgelabel='N',
-                        qlabel='Big?\n(s>{s:.0f}")'.format(s=2*size_large),
+                        qlabel='Big?\n(s>{s:.0f}")\n(visual confirmation)'.format(s=2*size_large),
                         #color='orange',
                         masterlist=masterlist)
 
-
-    # large faint 
-    M_large_faint_huge = M_large_faint.submask(lofarcat['Maj'] > 2*size_large,
+    # huge faint 
+    M_large_faint_huge_artefact = M_large_faint.submask((lofarcat['Maj'] > 2*size_large)& (huge_faint_flag ==4),
                         'large (s>{s:.0f}") & v faint (S<={f:.0f} mJy)'.format(f=fluxcut2, s=2*size_large),
-                        'huge',
-                        edgelabel='Y',
-                        qlabel='(very large, but faint)\nTBC?',
-                        color='aquamarine',
+                        'artefact',
+                        edgelabel='N(r)',
+                        qlabel='artefact\n(visually confirmed)',
+                        color='gray',
                         masterlist=masterlist)
+    
+
+    # huge faint 
+    M_large_faint_huge_complex = M_large_faint.submask((lofarcat['Maj'] > 2*size_large) & (huge_faint_flag ==1),
+                        'large (s>{s:.0f}") & v faint (S<={f:.0f} mJy)'.format(f=fluxcut2, s=2*size_large),
+                        'complex',
+                        edgelabel='Y(*)',
+                        qlabel='complex\n(LGZ)',
+                        color='green',
+                        masterlist=masterlist)
+    
+    # huge faint 
+    M_large_faint_huge_match = M_large_faint.submask((lofarcat['Maj'] > 2*size_large)& (huge_faint_flag ==2),
+                        'large (s>{s:.0f}") & v faint (S<={f:.0f} mJy)'.format(f=fluxcut2, s=2*size_large),
+                        'match',
+                        edgelabel='Y(m)',
+                        qlabel='Bright galaxy\n(visually confirmed)',
+                        color='blue',
+                        masterlist=masterlist)
+    
+    # huge faint 
+    M_large_faint_huge_nomatch = M_large_faint.submask((lofarcat['Maj'] > 2*size_large)& (huge_faint_flag ==3),
+                        'large (s>{s:.0f}") & v faint (S<={f:.0f} mJy)'.format(f=fluxcut2, s=2*size_large),
+                        'nomatch',
+                        edgelabel='Y(nm)',
+                        qlabel='No match possible\n(visually confirmed)',
+                        color='red',
+                        masterlist=masterlist)
+    
+    # huge faint 
+    M_large_faint_huge_other = M_large_faint.submask((lofarcat['Maj'] > 2*size_large)& (huge_faint_flag ==0),
+                        'large (s>{s:.0f}") & v faint (S<={f:.0f} mJy)'.format(f=fluxcut2, s=2*size_large),
+                        'problem',
+                        edgelabel='N(r)',
+                        qlabel='TBC',
+                        color='red',
+                        masterlist=masterlist)
+    
     # large faint 
     M_large_faint_nhuge = M_large_faint.submask(lofarcat['Maj'] <= 2*size_large,
                         'large (s>{s:.0f}") & not v faint (S>{f:.0f} mJy)'.format(f=fluxcut2, s=2*size_large),
@@ -438,15 +479,6 @@ if __name__=='__main__':
 
 
     # large faint 
-    M_large_faint_nhuge_2masx = M_large_faint_nhuge.submask(lofarcat['2MASX'] & (nhuge_2masx_flag==1),
-                        'large (s>{s:.0f}") & 2MASX'.format(f=fluxcut2, s=size_large),
-                        '2masx',
-                        edgelabel='Y',
-                        qlabel='take 2MASX match\n(visually confirmed)',
-                        color='blue',
-                        masterlist=masterlist)
-    
-    # large faint 
     M_large_faint_nhuge_art = M_large_faint_nhuge.submask(lofarcat['2MASX'] & (nhuge_2masx_flag==4),
                         'large (s>{s:.0f}") & 2MASX'.format(f=fluxcut2, s=size_large),
                         'artefact',
@@ -454,7 +486,7 @@ if __name__=='__main__':
                         qlabel='artefact\n(visually confirmed)',
                         color='gray',
                         masterlist=masterlist)
-
+    
     # large faint 
     M_large_faint_nhuge_complex = M_large_faint_nhuge.submask(lofarcat['2MASX'] & (nhuge_2masx_flag==2),
                         'large (s>{s:.0f}") & 2MASX'.format(f=fluxcut2, s=size_large),
@@ -463,6 +495,17 @@ if __name__=='__main__':
                         qlabel='complex\n(LGZ)',
                         color='green',
                         masterlist=masterlist)
+    
+    # large faint 
+    M_large_faint_nhuge_2masx = M_large_faint_nhuge.submask(lofarcat['2MASX'] & (nhuge_2masx_flag==1),
+                        'large (s>{s:.0f}") & 2MASX'.format(f=fluxcut2, s=size_large),
+                        '2masx',
+                        edgelabel='Y',
+                        qlabel='take 2MASX match\n(visually confirmed)',
+                        color='blue',
+                        masterlist=masterlist)
+    
+
     
     #M_large_faint_nhuge_n2masx = M_large_faint_nhuge.submask(~lofarcat['2MASX'],
                         #'large (s>{s:.0f}") & !2MASX'.format(f=fluxcut2, s=size_large),
