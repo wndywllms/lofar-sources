@@ -283,6 +283,9 @@ if __name__=='__main__':
         raise  RuntimeError('need the artefact information')
     artefact = lofarcat['artefact']
         
+    # combine the artefact flags
+    Artefact_flag = (artefact == 1) | (huge_faint_flag ==4) | (nhuge_2masx_flag==4) | (Lclustered_flag == 1) | (clustered_flag == 1)
+
 
     #############################################################################
 
@@ -291,13 +294,21 @@ if __name__=='__main__':
 
     # get nearest neighbour for all sources
     c = ac.SkyCoord(lofarcat['RA'], lofarcat['DEC'], unit="deg")
-    f_nn_idx,f_nn_sep2d,f_nn_dist3d = ac.match_coordinates_sky(c,c,nthneighbor=2)
+    f_nn_idx,f_nn_sep2d,_ = ac.match_coordinates_sky(c,c,nthneighbor=2)
+    
 
-    #f_nn3_idx,f_nn3_sep2d,f_nn3_dist3d = ac.match_coordinates_sky(c,c,nthneighbor=3)
-    f_nn4_idx,f_nn4_sep2d,f_nn4_dist3d = ac.match_coordinates_sky(c,c,nthneighbor=4)
-    f_nn5_idx,f_nn5_sep2d,f_nn5_dist3d = ac.match_coordinates_sky(c,c,nthneighbor=5)
-    #f_nn6_idx,f_nn6_sep2d,f_nn6_dist3d = ac.match_coordinates_sky(c,c,nthneighbor=6)
+    #f_nn3_idx,f_nn3_sep2d,_ = ac.match_coordinates_sky(c,c,nthneighbor=3)
+    f_nn4_idx,f_nn4_sep2d,_ = ac.match_coordinates_sky(c,c,nthneighbor=4)
+    f_nn5_idx,f_nn5_sep2d,_ = ac.match_coordinates_sky(c,c,nthneighbor=5)
+    #f_nn6_idx,f_nn6_sep2d,_ = ac.match_coordinates_sky(c,c,nthneighbor=6)
 
+    # now exclude artefacts - just put them far away always at the south pole
+    dec = lofarcat['DEC']
+    dec[Artefact_flag] = -90
+    cclean = ac.SkyCoord(lofarcat['RA'], dec, unit="deg")
+    f_nnc_idx,f_nnc_sep2d,_ = ac.match_coordinates_sky(cclean,cclean,nthneighbor=2)
+    f_nnc4_idx,f_nnc4_sep2d,_ = ac.match_coordinates_sky(cclean,cclean,nthneighbor=4)
+    f_nnc5_idx,f_nnc5_sep2d,_ = ac.match_coordinates_sky(cclean,cclean,nthneighbor=5)
 
     if 'NN_sep' not in lofarcat.colnames:
         lofarcat.add_column(Column(lofarcat['LR'][f_nn_idx], 'NN_LR'))
@@ -308,6 +319,16 @@ if __name__=='__main__':
         lofarcat.add_column(Column(lofarcat['Total_flux'][f_nn_idx], 'NN_Total_flux'))
         lofarcat.add_column(Column(lofarcat['Total_flux']/lofarcat['NN_Total_flux'], 'NN_Frat'))
         lofarcat.add_column(Column(lofarcat['Maj'][f_nn_idx], 'NN_Maj'))
+    #'clean' nearest neighbour
+    if 'NNC_sep' not in lofarcat.colnames:
+        lofarcat.add_column(Column(lofarcat['LR'][f_nnc_idx], 'NNC_LR'))
+        lofarcat.add_column(Column(f_nnc_sep2d.to(u.arcsec).value, 'NNC_sep'))
+        lofarcat.add_column(Column(f_nnc_idx, 'NNC_idx'))
+        lofarcat.add_column(Column(f_nnc5_sep2d.to(u.arcsec).value, 'NNC5_sep'))
+        lofarcat.add_column(Column(f_nnc4_sep2d.to(u.arcsec).value, 'NNC4_sep'))
+        lofarcat.add_column(Column(lofarcat['Total_flux'][f_nnc_idx], 'NNC_Total_flux'))
+        lofarcat.add_column(Column(lofarcat['Total_flux']/lofarcat['NNC_Total_flux'], 'NNC_Frat'))
+        lofarcat.add_column(Column(lofarcat['Maj'][f_nnc_idx], 'NNC_Maj'))
 
 
 
@@ -458,16 +479,7 @@ if __name__=='__main__':
                         qlabel='No match possible\n(visually confirmed)',
                         color='red',
                         masterlist=masterlist)
-    
-    # huge faint 
-    M_large_faint_huge_other = M_large_faint.submask((lofarcat['Maj'] > 2*size_large)& (huge_faint_flag ==0),
-                        'large (s>{s:.0f}") & v faint (S<={f:.0f} mJy)'.format(f=fluxcut2, s=2*size_large),
-                        'problem',
-                        edgelabel='N(r)',
-                        qlabel='TBC',
-                        color='red',
-                        masterlist=masterlist)
-    
+        
     # large faint 
     M_large_faint_nhuge = M_large_faint.submask(lofarcat['Maj'] <= 2*size_large,
                         'large (s>{s:.0f}") & not v faint (S>{f:.0f} mJy)'.format(f=fluxcut2, s=2*size_large),
@@ -573,7 +585,7 @@ if __name__=='__main__':
                         masterlist=masterlist)
     
     
-    M_large_faint_nhuge_n2masx_nisol_nclustered_touching = M_large_faint_nhuge_n2masx_nisol_nclustered.submask(lofarcat['NN_sep'] <= (lofarcat['NN_Maj'] + lofarcat['Maj']), 
+    M_large_faint_nhuge_n2masx_nisol_nclustered_touching = M_large_faint_nhuge_n2masx_nisol_nclustered.submask(lofarcat['NNC_sep'] <= (lofarcat['NNC_Maj'] + lofarcat['Maj']), 
                         'touching',
                         'touching',
                         edgelabel='Y',
@@ -581,7 +593,7 @@ if __name__=='__main__':
                         color='orange',
                         masterlist=masterlist)
     
-    M_large_faint_nhuge_n2masx_nisol_nclustered_ntouching = M_large_faint_nhuge_n2masx_nisol_nclustered.submask(lofarcat['NN_sep'] > (lofarcat['NN_Maj'] + lofarcat['Maj']),
+    M_large_faint_nhuge_n2masx_nisol_nclustered_ntouching = M_large_faint_nhuge_n2masx_nisol_nclustered.submask(lofarcat['NNC_sep'] > (lofarcat['NNC_Maj'] + lofarcat['Maj']),
                         'ntouching',
                         'ntouching',
                         edgelabel='N',
@@ -1176,7 +1188,7 @@ if __name__=='__main__':
     #_ =ax.hist(np.log10(1.+lofarcat['LR'][m_small_isol_nS]), bins=100, normed=True, histtype='step', label=l_small_isol_nS)
     _ =ax.hist(np.log10(1.+lofarcat['LR'][M_small_nisol.mask]), bins=100, normed=True, histtype='step', label=M_small_nisol.name.replace('_','\_'))
     _ =ax.hist(np.log10(1.+lofarcat['LR'][M_large.mask]), bins=100, normed=True, histtype='step', label=M_large.name.replace('_','\_'))
-    _ =ax.hist(np.log10(1.+lofarcat['LR'][M_large_faint_huge.mask]), bins=100, normed=True, histtype='step', label=M_large_faint_huge.name.replace('_','\_'))
+    _ =ax.hist(np.log10(1.+lofarcat['LR'][M_large_faint_huge_complex.mask]), bins=100, normed=True, histtype='step', label=M_large_faint_huge_complex.name.replace('_','\_'))
     _ =ax.hist(np.log10(1.+lofarcat['LR'][M_large_faint_nhuge_n2masx.mask]), bins=100, normed=True, histtype='step', label=M_large_faint_nhuge_n2masx.name.replace('_','\_'))
     ax.legend()
     ax.set_ylim(0,2)
