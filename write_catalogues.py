@@ -78,7 +78,8 @@ if __name__=='__main__':
     #lgz_compcat_file = os.path.join(path,'LGZ_v0/HETDEX-LGZ-comps-v0.5.fits')
     lgz_cat_file = os.path.join(path,'LGZ_v0/HETDEX-LGZ-comps-v0.5-filtered.fits') # ! name !
     lgz_remove_file = os.path.join(path,'LGZ_v0/remove.txt')
-    
+
+    merge_out_file = os.path.join(path,'LOFAR_HBA_T1_DR1_merge_ID_v0.1.fits')    
 
     lofarcat0 = Table.read(lofarcat_orig_file)
     lofarcat_sorted = Table.read(lofarcat_file_srt)
@@ -151,6 +152,7 @@ if __name__=='__main__':
     print 'adding info for {n:d} ML source matches'.format(n=np.sum(selml))
     
     lofarcat_sorted.add_column(Column(np.nan*np.zeros(len(lofarcat_sorted),dtype=float),'ML_LR'))
+
     
     # take the PS name over the WISE name
     # why is PS name just some number ?? - pepe?
@@ -165,6 +167,7 @@ if __name__=='__main__':
     lofarcat_sorted['ML_LR'][selml] = lofarcat_sorted['LR'][selml]
     
     selml = (lofarcat_sorted['ID_flag']==1) & (np.log10(1+lofarcat_sorted['LR']) <= lLR_thresh)
+    print 'adding info for {n:d} ML source non-matches'.format(n=np.sum(selml))
     
     lofarcat_sorted['ID_name'][selml] = 'None'
 
@@ -187,7 +190,7 @@ if __name__=='__main__':
     mergecat = vstack([lofarcat_sorted, lgz_cat])
     print 'now we have {n:d} sources'.format(n=len(mergecat))
 
-    print 'ID_flag stats:'
+    print 'ID_flag counts:'
     unique, counts = np.unique(mergecat['ID_flag'], return_counts=True)
     for u,c in zip(unique, counts):
         print u,c
@@ -197,3 +200,6 @@ if __name__=='__main__':
     mergecat.keep_columns(['Source_Name', 'RA', 'E_RA', 'E_RA_tot', 'DEC', 'E_DEC', 'E_DEC_tot', 'Peak_flux', 'E_Peak_flux', 'E_Peak_flux_tot', 'Total_flux', 'E_Total_flux', 'E_Total_flux_tot', 'Maj', 'E_Maj', 'Min', 'E_Min', 'PA', 'E_PA', 'Isl_rms', 'S_Code', 'Mosaic_ID', 'Isl_id', 'ID_flag', 'ID_name', 'ID_ra', 'ID_dec', 'ML_LR', 'LGZ_Size', 'LGZ_Assoc', 'LGZ_Assoc_Qual', 'LGZ_ID_Qual'])
 
     
+    if os.path.isfile(merge_out_file):
+        os.remove(merge_out_file)
+    mergecat.write(merge_out_file)
