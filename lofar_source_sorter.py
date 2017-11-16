@@ -559,7 +559,7 @@ if __name__=='__main__':
                         #color='orange',
                         #masterlist=masterlist)
 
-    M_large_faint_nhuge_n2masx = M_large_faint_nhuge.submask(~lofarcat['2MASX'] | (lofarcat['2MASX'] & (nhuge_2masx_flag==2)),
+    M_large_faint_nhuge_n2masx = M_large_faint_nhuge.submask(~lofarcat['2MASX'] | (lofarcat['2MASX'] & (nhuge_2masx_flag==3)),
                         'large (s>{s:.0f}") & !2MASX'.format(s=size_large),
                         'n2masx',
                         qlabel='Isolated?\n(NN>{nn:.0f}")'.format(nn=separation1 + size_large),
@@ -1015,7 +1015,7 @@ if __name__=='__main__':
 
 
     if 'FC_flag' not in lofarcat.colnames:
-        lofarcat.add_column(Column(np.zeros(len(lofarcat),dtype=int), 'FC_flag'))
+        lofarcat.add_column(Column(-1*np.ones(len(lofarcat),dtype=int), 'FC_flag'))
     i = 0
     for t in masterlist:
         if not t.has_children:
