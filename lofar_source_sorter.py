@@ -388,7 +388,7 @@ if __name__=='__main__':
 
     # large 
     M_all_biggal = M_all_clean.submask((big2masx),
-                        'Huge 2MASX source',
+                        'Huge 2MASX source\n(64 r(2MASX)>60" galaxies)',
                         'big2MASX',
                         edgelabel='Y',
                         #qlabel='Bright?\n(S>{f:.0f} mJy)'.format(f=fluxcut, s=size_large),
