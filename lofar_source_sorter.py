@@ -223,6 +223,18 @@ if __name__=='__main__':
     lofarcat.add_column(Column(lrcol, 'cLR'))
     lrcol[np.isnan(lrcol)] = 0
     lofarcat.add_column(Column(lrcol, 'LR'))
+    lrcol = np.zeros(len(lofarcat),dtype='S19')
+    lrcol[f_nn_sep2d==0] = psmlcat['AllWISE'][f_nn_idx][f_nn_sep2d==0]
+    lofarcat.add_column(Column(lrcol, 'LR_name_wise'))
+    lrcol = np.zeros(len(lofarcat),dtype=int)
+    lrcol[f_nn_sep2d==0] = psmlcat['objID'][f_nn_idx][f_nn_sep2d==0]
+    lofarcat.add_column(Column(lrcol, 'LR_name_ps'))
+    lrcol = np.zeros(len(lofarcat),dtype=float)
+    lrcol[f_nn_sep2d==0] = psmlcat['ra'][f_nn_idx][f_nn_sep2d==0]
+    lofarcat.add_column(Column(lrcol, 'LR_ra'))
+    lrcol = np.zeros(len(lofarcat),dtype=float)
+    lrcol[f_nn_sep2d==0] = psmlcat['dec'][f_nn_idx][f_nn_sep2d==0]
+    lofarcat.add_column(Column(lrcol, 'LR_dec'))
 
 
     # join the ps ml gaus cat  - they have identical RA/DEC (source_names were wrong)
