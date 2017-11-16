@@ -434,7 +434,7 @@ if __name__=='__main__':
                         qlabel='LGZ',
                         color='green',
                         masterlist=masterlist)
-    lofarcat['ID_flag'][M_large_bright.mask] = 3
+    lofarcat['ID_flag'][M_large_bright.mask] = 30
 
     ## large bright not huge with lr
     #M_large_bright_nhuge_lr = M_large_bright.submask((lofarcat['Maj'] <= size_huge) & (np.log10(1+lofarcat['LR']) <= lLR_thresh),
