@@ -155,19 +155,21 @@ if __name__=='__main__':
     
     
     # some sources come from a tag 'match to bright galaxy' - not necesarily 2MASX - look in SDSS for these:
-    sdss_matches =  (names == '2MASXJ')
-    lofarcat_sorted['ID_name'][sel2mass ] = names
-    lofarcat_sorted[sel2mass ][sdss_matches]
+    sel2masssdss = (lofarcat_sorted['ID_flag']==2) & (lofarcat_sorted['ID_name']=='2MASXJ')
+    #sdss_matches =  (names == '2MASXJ')
     
-    print 'resorting to an SDSS match for {n:d} sources'.format(n=np.sum(sdss_matches))
+    #lofarcat_sorted['ID_name'][sel2mass ] = names
+    #lofarcat_sorted[sel2mass ][sdss_matches]
+    
+    print 'resorting to an SDSS match for {n:d} sources'.format(n=np.sum(sel2masssdss))
     
     #### TBD ####
     import astropy.units as u
     from astroquery.sdss import SDSS
-    snames = []
-    sdss_ra = []
-    sdss_dec = []
-    for t in lofarcat_sorted[sel2mass ][sdss_matches]:
+    snames = np.zeros(np.sum(sel2masssdss),dtype='S60')
+    sdss_ra = np.zeros(np.sum(sel2masssdss))
+    sdss_dec = np.zeros(np.sum(sel2masssdss))
+    for ti,t in enumerate(lofarcat_sorted[sel2masssdss ]):
         ra,dec = t['RA'],t['DEC']
         #print ra,dec
         c = SkyCoord(ra,dec, frame='icrs', unit='deg')
@@ -182,17 +184,19 @@ if __name__=='__main__':
         a = sep.argmin()
         #print st
         #print st[a]
-        snames.append('SDSS '+str(st['objID'][a]))
-        sdss_ra.append(st['ra'][a])
-        sdss_dec.append(st['dec'][a])
+        snames[ti] = 'SDSS '+str(st['objID'][a])
+        sdss_ra[ti] = st['ra'][a]
+        sdss_dec[ti] = st['dec'][a]
         
     
     #c = SkyCoord(lofarcat_sorted['RA'][sel2mass ][sdss_matches], lofarcat_sorted['DEC'][sel2mass ][sdss_matches], frame='icrs', unit='deg')
     #sdss_tab = SDSS.query_crossid(c,radius=20*u.arcsec)
     
-    lofarcat_sorted['ID_name'][sel2mass][sdss_matches] = snames
-    lofarcat_sorted['ID_ra'][sel2mass][sdss_matches] = sdss_ra
-    lofarcat_sorted['ID_dec'][sel2mass][sdss_matches] = sdss_dec
+    lofarcat_sorted['ID_name'][sel2masssdss] = snames
+    lofarcat_sorted['ID_ra'][sel2masssdss] = sdss_ra
+    lofarcat_sorted['ID_dec'][sel2masssdss] = sdss_dec
+    
+    sys.exit()
     
     lofarcat_sorted.add_column(Column(np.nan*np.zeros(len(lofarcat_sorted),dtype=float),'LGZ_Size'))
     lofarcat_sorted.add_column(Column(np.nan*np.zeros(len(lofarcat_sorted),dtype=float),'LGZ_Assoc'))
@@ -309,3 +313,20 @@ if __name__=='__main__':
     if os.path.isfile(merge_out_file):
         os.remove(merge_out_file)
     mergecat.write(merge_out_file)
+    
+    sys.exit()
+    tt = mergecat['ID_name']
+    tt = tt[tt!='']
+    tt = tt[tt!='2MASXJ']
+    tt = tt[tt!='Mult']
+    n,u=np.unique(tt,return_counts=True)
+
+    tout = mergecat[1:1]
+    for nn,uu in zip(n,u):
+        if uu > 1: 
+            #print nn,uu
+            tt=mergecat[mergecat['ID_name']==nn]
+            if tt['ID_flag'][0] == 3:
+                xx  = Table([tt['Source_Name'], tt['ID_flag'], tt['ID_name'], tt['FC_flag'], tt['Art_prob'],tt['Blend_prob'],tt['Zoom_prob'],tt['Hostbroken_prob'],tt['Total_flux']])
+                print xx
+                tout = vstack([tout,tt])
