@@ -196,8 +196,6 @@ if __name__=='__main__':
     lofarcat_sorted['ID_ra'][sel2masssdss] = sdss_ra
     lofarcat_sorted['ID_dec'][sel2masssdss] = sdss_dec
     
-    sys.exit()
-    
     lofarcat_sorted.add_column(Column(np.nan*np.zeros(len(lofarcat_sorted),dtype=float),'LGZ_Size'))
     lofarcat_sorted.add_column(Column(np.nan*np.zeros(len(lofarcat_sorted),dtype=float),'LGZ_Assoc'))
 
