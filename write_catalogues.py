@@ -1,5 +1,6 @@
 import os 
 from astropy.table import Table, Column, join, vstack
+from astropy.coordinates import SkyCoord
 import numpy as np
 '''
 ID_flag
@@ -76,10 +77,10 @@ if __name__=='__main__':
 
     # LGZ output
     #lgz_compcat_file = os.path.join(path,'LGZ_v0/HETDEX-LGZ-comps-v0.5.fits')
-    lgz_cat_file = os.path.join(path,'LGZ_v0/HETDEX-LGZ-comps-v0.5-filtered.fits') # ! name !
+    lgz_cat_file = os.path.join(path,'LGZ_v0/HETDEX-LGZ-cat-v0.5-filtered.fits') 
     lgz_remove_file = os.path.join(path,'LGZ_v0/remove.txt')
 
-    merge_out_file = os.path.join(path,'LOFAR_HBA_T1_DR1_merge_ID_v0.1.fits')    
+    merge_out_file = os.path.join(path,'LOFAR_HBA_T1_DR1_merge_ID_v0.2.fits')    
 
     lofarcat0 = Table.read(lofarcat_orig_file)
     lofarcat_sorted = Table.read(lofarcat_file_srt)
@@ -89,6 +90,8 @@ if __name__=='__main__':
     
     #lgz_compcat = Table.read(lgz_compcat_file)
     lgz_cat = Table.read(lgz_cat_file)
+    
+    
 
 
     
@@ -128,6 +131,10 @@ if __name__=='__main__':
     #lofarcat_sorted.add_column(Column(['None']*len(lofarcat_sorted),'ID_name'))
     lofarcat_sorted.add_column(Column(np.nan*np.zeros(len(lofarcat_sorted),dtype=float),'ID_ra'))
     lofarcat_sorted.add_column(Column(np.nan*np.zeros(len(lofarcat_sorted),dtype=float),'ID_dec'))
+    
+    
+    ##
+    lofarcat_sorted.add_column(Column(np.nan*np.zeros(len(lofarcat_sorted),dtype=float),'ML_LR'))
 
 
     # handle TBC
@@ -139,11 +146,108 @@ if __name__=='__main__':
     print 'adding info for {n:d} 2MASX source matches'.format(n=np.sum(sel2mass))
     # add the 2MASXJ
     names = lofarcat_sorted['2MASX_name'][sel2mass]
-    names = ['2MASXJ'+n for n in names]
+    names = np.array(['2MASXJ'+n for n in names])
+    
     
     lofarcat_sorted['ID_name'][sel2mass] = names
     lofarcat_sorted['ID_ra'][sel2mass] = lofarcat_sorted['2MASX_ra'][sel2mass]
     lofarcat_sorted['ID_dec'][sel2mass] = lofarcat_sorted['2MASX_dec'][sel2mass]
+    
+    
+    # some sources come from a tag 'match to bright galaxy' - not necesarily 2MASX - look in SDSS for these:
+    sdss_matches =  (names == '2MASXJ')
+    lofarcat_sorted['ID_name'][sel2mass ] = names
+    lofarcat_sorted[sel2mass ][sdss_matches]
+    
+    print 'resorting to an SDSS match for {n:d} sources'.format(n=np.sum(sdss_matches))
+    
+    #### TBD ####
+    import astropy.units as u
+    from astroquery.sdss import SDSS
+    snames = []
+    sdss_ra = []
+    sdss_dec = []
+    for t in lofarcat_sorted[sel2mass ][sdss_matches]:
+        ra,dec = t['RA'],t['DEC']
+        #print ra,dec
+        c = SkyCoord(ra,dec, frame='icrs', unit='deg')
+        
+        #c.
+        
+        st = SDSS.query_region(c,radius=0.5*t['Maj']*u.arcsec, photoobj_fields=['ra','dec','objID','petroR50_r','petroMag_r'])
+        st = st[(st['petroMag_r'] <20.) & (st['petroMag_r'] > 0 )] 
+        #print st['petroMag_r'].max()
+        c2 = SkyCoord(st['ra'],st['dec'], frame='icrs', unit='deg')
+        sep = c.separation(c2)
+        a = sep.argmin()
+        #print st
+        #print st[a]
+        snames.append('SDSS '+str(st['objID'][a]))
+        sdss_ra.append(st['ra'][a])
+        sdss_dec.append(st['dec'][a])
+        
+    
+    #c = SkyCoord(lofarcat_sorted['RA'][sel2mass ][sdss_matches], lofarcat_sorted['DEC'][sel2mass ][sdss_matches], frame='icrs', unit='deg')
+    #sdss_tab = SDSS.query_crossid(c,radius=20*u.arcsec)
+    
+    lofarcat_sorted['ID_name'][sel2mass][sdss_matches] = snames
+    lofarcat_sorted['ID_ra'][sel2mass][sdss_matches] = sdss_ra
+    lofarcat_sorted['ID_dec'][sel2mass][sdss_matches] = sdss_dec
+    
+    lofarcat_sorted.add_column(Column(np.nan*np.zeros(len(lofarcat_sorted),dtype=float),'LGZ_Size'))
+    lofarcat_sorted.add_column(Column(np.nan*np.zeros(len(lofarcat_sorted),dtype=float),'LGZ_Assoc'))
+
+    ok_matches =  (names != '2MASXJ')
+    
+    unames, ucounts = np.unique(lofarcat_sorted['ID_name'][sel2mass ][ok_matches], return_counts=True)
+    remove_2mass_mult = np.zeros(len(lofarcat_sorted),dtype=bool)
+    lofarcat_add_2mass_mult = lofarcat_sorted[1:1]
+    nmerge = np.sum(ucounts>1)
+    nn = 0
+    for n in unames[ucounts>1]:
+        i = np.where(lofarcat_sorted['ID_name'] == n)[0]
+        nn += len(i)
+        #print n, i
+        remove_2mass_mult[i] = True
+        
+        complist = lofarcat_sorted[i]
+        assoc_2mass = lofarcat_sorted[i[0]]
+        
+        
+        assoc_2mass['E_RA']=np.sqrt(np.sum(complist['E_RA']**2.0))/len(complist)
+        assoc_2mass['E_DEC']=np.sqrt(np.sum(complist['E_DEC']**2.0))/len(complist)
+        assoc_2mass['Isl_rms']=np.mean(complist['Isl_rms'])
+        assoc_2mass['Total_flux']=np.sum(complist['Total_flux'])
+        # total flux error is error on the sum
+        assoc_2mass['E_Total_flux']=np.sqrt(np.sum(complist['E_Total_flux']**2.0))
+        # peak flux and error from brightest component
+        maxpk=np.argmax(complist['Peak_flux'])
+        assoc_2mass['Peak_flux']=complist[maxpk]['Peak_flux']
+        assoc_2mass['E_Peak_flux']=complist[maxpk]['E_Peak_flux']
+        # merging multiple S/M will be M
+        assoc_2mass['S_Code'] = 'M'
+        for t in ['Maj', 'Min', 'PA','E_Maj', 'E_Min', 'E_PA']:
+            assoc_2mass[t] = np.nan
+        assoc_2mass['Isl_id'] = -99
+        
+        c =SkyCoord(complist['RA'], complist['DEC'])
+                
+
+        # size is max of Maj or sep between centres
+        assoc_2mass['LGZ_Size']=np.max([np.max(complist['Maj']) , np.max([ci.separation(c).max().to('arcsec').value for ci in c])])
+        # TBD 'Mosiac_ID'
+        assoc_2mass['LGZ_Assoc'] = len(complist)
+        
+        
+        lofarcat_add_2mass_mult = vstack([lofarcat_add_2mass_mult, assoc_2mass]) 
+        
+    lofarcat_sorted = lofarcat_sorted[~remove_2mass_mult]
+    lofarcat_sorted = vstack([lofarcat_sorted,lofarcat_add_2mass_mult])
+        
+    print 'merging components of {n:d} 2MASX sources'.format(n=nmerge)
+    print 'removing merged components {n:d} from catalogue'.format(n=np.sum(remove_2mass_mult))
+    print 'adding back {n:d} merged sources'.format(n=len(lofarcat_add_2mass_mult))
+    
     
     
     # handle ML sources
@@ -151,7 +255,6 @@ if __name__=='__main__':
     selml = (lofarcat_sorted['ID_flag']==1) & (np.log10(1+lofarcat_sorted['LR']) > lLR_thresh)
     print 'adding info for {n:d} ML source matches'.format(n=np.sum(selml))
     
-    lofarcat_sorted.add_column(Column(np.nan*np.zeros(len(lofarcat_sorted),dtype=float),'ML_LR'))
 
     
     # take the PS name over the WISE name
@@ -169,7 +272,7 @@ if __name__=='__main__':
     selml = (lofarcat_sorted['ID_flag']==1) & (np.log10(1+lofarcat_sorted['LR']) <= lLR_thresh)
     print 'adding info for {n:d} ML source non-matches'.format(n=np.sum(selml))
     
-    lofarcat_sorted['ID_name'][selml] = 'None'
+    lofarcat_sorted['ID_name'][selml] = ''
 
                                
 
@@ -187,6 +290,9 @@ if __name__=='__main__':
     lgz_cat.rename_column('ID_Qual','LGZ_ID_Qual')
     lgz_cat.add_column(Column(3*np.ones(len(lgz_cat),dtype=int),'ID_flag'))
 
+    ## change None to ''
+    lgz_cat['ID_name'][lgz_cat['ID_name']=='None'] = ''
+
     mergecat = vstack([lofarcat_sorted, lgz_cat])
     print 'now we have {n:d} sources'.format(n=len(mergecat))
 
@@ -197,7 +303,7 @@ if __name__=='__main__':
 
 
     ## throw away extra columns
-    mergecat.keep_columns(['Source_Name', 'RA', 'E_RA', 'E_RA_tot', 'DEC', 'E_DEC', 'E_DEC_tot', 'Peak_flux', 'E_Peak_flux', 'E_Peak_flux_tot', 'Total_flux', 'E_Total_flux', 'E_Total_flux_tot', 'Maj', 'E_Maj', 'Min', 'E_Min', 'PA', 'E_PA', 'Isl_rms', 'S_Code', 'Mosaic_ID', 'Isl_id', 'ID_flag', 'ID_name', 'ID_ra', 'ID_dec', 'ML_LR', 'LGZ_Size', 'LGZ_Assoc', 'LGZ_Assoc_Qual', 'LGZ_ID_Qual'])
+    mergecat.keep_columns(['Source_Name', 'RA', 'E_RA', 'DEC', 'E_DEC', 'Peak_flux', 'E_Peak_flux', 'Total_flux', 'E_Total_flux', 'Maj', 'E_Maj', 'Min', 'E_Min', 'PA', 'E_PA', 'Isl_rms', 'S_Code', 'Mosaic_ID', 'ID_flag', 'ID_name', 'ID_ra', 'ID_dec', 'ML_LR', 'LGZ_Size', 'LGZ_Assoc', 'LGZ_Assoc_Qual', 'LGZ_ID_Qual'])
 
     
     if os.path.isfile(merge_out_file):
