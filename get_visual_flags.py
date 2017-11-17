@@ -78,7 +78,10 @@ lofarcat.add_column(tt['Lclustered_flag'])
 
 
 ### huge faint
-
+#1: send to LGZ
+#2: bright galaxy match
+#3: no prospect of ID
+#4: artefact
 
 huge_faint_vc_cat_file = 'fullsample/sample_all_src_clean_large_faint_huge-vflag.fits'
 huge_faint_vc_cat = Table.read(huge_faint_vc_cat_file)
@@ -92,6 +95,17 @@ tt = tt.filled()
 tt.sort('Source_Name')
 tt.rename_column('visual_flag','huge_faint_flag')
 
+
+## fix a few bad ones!!
+tt['huge_faint_flag'][tt['Source_Name']=='ILTJ141956.60+533054.4'] = 3
+tt['huge_faint_flag'][tt['Source_Name']=='ILTJ123133.59+484958.6'] = 3
+tt['huge_faint_flag'][tt['Source_Name']=='ILTJ135431.79+542009.6'] = 1
+tt['huge_faint_flag'][tt['Source_Name']=='ILTJ114328.67+524240.1'] = 1
+tt['huge_faint_flag'][tt['Source_Name']=='ILTJ130840.28+540437.0'] = 1
+tt['huge_faint_flag'][tt['Source_Name']=='ILTJ132513.22+535113.5'] = 1
+tt['huge_faint_flag'][tt['Source_Name']=='ILTJ133233.91+541927.4'] = 1
+tt['huge_faint_flag'][tt['Source_Name']=='ILTJ132919.17+530505.1'] = 1
+tt['huge_faint_flag'][tt['Source_Name']=='ILTJ105949.84+534811.6'] = 1
 
 lofarcat.add_column(tt['huge_faint_flag'])
 
