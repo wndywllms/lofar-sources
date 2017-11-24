@@ -245,12 +245,20 @@ if __name__=='__main__':
     # note the large sources are missing from the ML catalogue
     lrgcol = np.zeros(len(lofargcat),dtype=float)
     lrgcol[f_nn_sep2d_g==0] = psmlgcat['lr'][f_nn_idx_g][f_nn_sep2d_g==0]
-
     #lofarcat.add_column(Column(psmlcat['lr_pc_7th'], 'LR'))
     lofargcat.add_column(Column(lrgcol, 'LR'))
+    lrgcol = np.zeros(len(lofargcat),dtype=float)
+    lrgcol[f_nn_sep2d_g==0] = psmlgcat['ra'][f_nn_idx_g][f_nn_sep2d_g==0]
+    lofargcat.add_column(Column(lrgcol, 'LR_ra'))
+    lrgcol = np.zeros(len(lofargcat),dtype=float)
+    lrgcol[f_nn_sep2d_g==0] = psmlgcat['dec'][f_nn_idx_g][f_nn_sep2d_g==0]
+    lofargcat.add_column(Column(lrgcol, 'LR_dec'))
 
     add_G = False   # add the gaussian information
     lofarcat.add_column(Column(np.ones(len(lofarcat),dtype=int), 'Ng'))
+    lofarcat.add_column(Column(np.ones(len(lofarcat),dtype=float), 'G_LR_max'))
+    lofarcat.add_column(Column(np.ones(len(lofarcat),dtype=int), 'Ng_LR_good'))
+    lofarcat.add_column(Column(np.zeros(len(lofarcat),dtype=bool), 'Flag_G_LR_problem'))
     if add_G:
         lofarcat.add_column(Column(np.zeros(len(lofarcat),dtype=list), 'G_ind'))
 
@@ -259,11 +267,35 @@ if __name__=='__main__':
     for i,sid in zip(minds, lofarcat['Source_Name'][~m_S]):
         ig = np.where(lofargcat['Source_Name']==sid)[0]
         lofarcat['Ng'][i]= len(ig)
+        lofarcat['G_LR_max'][i]= np.nanmax(lofargcat['LR'][ig])
+        igi = np.argmax(lofargcat['LR'][ig])
+        # for now, if one of the gaussian LR is better, take that
+        if lofarcat['G_LR_max'][i] > lofarcat['LR'][i]:
+            lofarcat['LR'][i] = lofarcat['G_LR_max'][i]
+            lofarcat['LR_ra'][i] = lofargcat['LR_dec'][ig[igi]]
+            lofarcat['LR_dec'][i] = lofargcat['LR_ra'][ig[igi]]
+        # how many unique acceptable matches are there for the gaussian components
+        matches_ra = np.unique(lofargcat['LR_ra'][ig][np.log10(1+lofargcat['LR'][ig]) > 0.36])
+        n_matches_ra = len(matches_ra)
+        if n_matches_ra > 1:
+            lofarcat['Flag_G_LR_problem'][i] = True
+        # any different to source match
+        if np.sum(matches_ra != lofarcat['LR_ra'][i]):
+            lofarcat['Flag_G_LR_problem'][i] = True
+        lofarcat['Ng_LR_good'][i]= np.nansum(np.log10(1+lofargcat['LR'][ig]) > 0.36)
         
         if add_G:
             lofarcat['G_ind'][i]= ig
+    lofarcat['G_LR_max'][m_S] = lofarcat['LR'][m_S]
+    lofarcat['Ng_LR_good'][m_S] = 1*(np.log10(1+lofarcat['LR'][m_S]) > 0.36)
 
+    # some flags for mult_gaus sources:
+    # source has good LR match, and no gaus
+    # multiple matches to different sources
+    # source has no good LR match, but one gaus does
+    
 
+    #sys.exit()
 
     # get the visual flags (must run get_visual_flags for these after doing visual confirmation - classify_*.py)
     if 'clustered_flag' not in lofarcat.colnames:
@@ -830,26 +862,44 @@ if __name__=='__main__':
                         'nS',
                         edgelabel='N',
                         color='orange',
-                        qlabel='TBC?',
+                        qlabel='TBC?\nprob w LR',
                         masterlist=masterlist)
     lofarcat['ID_flag'][M_small_isol_nS.mask] = 5
 
-    ## compact isolated good lr
-    #M_small_isol_nS_2masx = M_small_isol_nS.submask(lofarcat['2MASX'],
-                        #'2MASX'.format(s=size_large, nn=separation1),
-                        #'2masx',
-                        #color='blue',
-                        #qlabel='Accept 2MASX',
-                        #masterlist=masterlist)
+    # compact isolated good lr
+    M_small_isol_nS_gprob = M_small_isol_nS.submask(lofarcat['Flag_G_LR_problem'],
+                        'gprob'.format(s=size_large, nn=separation1),
+                        'gprob',
+                        color='orange',
+                        qlabel='problem',
+                        edgelabel='Y',
+                        masterlist=masterlist)
 
-    ## compact isolated good lr
-    #M_small_isol_nS_n2masx = M_small_isol_nS.submask(~lofarcat['2MASX'],
-                        #'no 2MASX'.format(s=size_large, nn=separation1),
-                        #'n2masx',
-                        #color='blue',
-                        #qlabel='TBC',
-                        #masterlist=masterlist)
+    # compact isolated good lr
+    M_small_isol_nS_nprob = M_small_isol_nS.submask(~lofarcat['Flag_G_LR_problem'],
+                        'nprob'.format(s=size_large, nn=separation1),
+                        'nprob',
+                        qlabel='LR?',
+                        edgelabel='N',
+                        masterlist=masterlist)
 
+    # compact isolated good lr
+    M_small_isol_nS_nprob_lr = M_small_isol_nS_nprob.submask(np.log10(1+lofarcat['LR']) > lLR_thresh,
+                        'lr'.format(s=size_large, nn=separation1),
+                        'lr',
+                        qlabel='accept LR',
+                        edgelabel='Y',
+                        color='blue',
+                        masterlist=masterlist)
+    
+    # compact isolated good lr
+    M_small_isol_nS_nprob_nlr = M_small_isol_nS_nprob.submask(np.log10(1+lofarcat['LR']) <= lLR_thresh,
+                        'nlr'.format(s=size_large, nn=separation1),
+                        'nlr',
+                        qlabel='accept no LR',
+                        edgelabel='N',
+                        color='red',
+                        masterlist=masterlist)
 
     ## compact isolated - 2MASX
     #M_small_isol_nS = M_small_isol_nS.submask(lofarcat['S_Code'] != 'S',
