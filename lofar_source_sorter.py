@@ -613,132 +613,132 @@ if __name__=='__main__':
                         masterlist=masterlist)
     
     
-    M_large_faint_nhuge_n2masx_nisol_nclustered_touching = M_large_faint_nhuge_n2masx_nisol_nclustered.submask(lofarcat['NNC_sep'] <= (lofarcat['NNC_Maj'] + lofarcat['Maj']), 
-                        'touching',
-                        'touching',
-                        edgelabel='Y',
-                        qlabel='touching?',
-                        color='orange',
-                        masterlist=masterlist)
-    lofarcat['ID_flag'][M_large_faint_nhuge_n2masx_nisol_nclustered_touching.mask] = 5
+    #M_large_faint_nhuge_n2masx_nisol_nclustered_touching = M_large_faint_nhuge_n2masx_nisol_nclustered.submask(lofarcat['NNC_sep'] <= (lofarcat['NNC_Maj'] + lofarcat['Maj']), 
+                        #'touching',
+                        #'touching',
+                        #edgelabel='Y',
+                        #qlabel='touching?',
+                        #color='orange',
+                        #masterlist=masterlist)
+    #lofarcat['ID_flag'][M_large_faint_nhuge_n2masx_nisol_nclustered_touching.mask] = 5
     
-    M_large_faint_nhuge_n2masx_nisol_nclustered_ntouching = M_large_faint_nhuge_n2masx_nisol_nclustered.submask(lofarcat['NNC_sep'] > (lofarcat['NNC_Maj'] + lofarcat['Maj']),
-                        'ntouching',
-                        'ntouching',
-                        edgelabel='N',
-                        qlabel='not touching\nS?',
-                        color='orange',
-                        masterlist=masterlist)
-    lofarcat['ID_flag'][M_large_faint_nhuge_n2masx_nisol_nclustered_ntouching.mask] = 5
-    
-    
-    
-    
-    M_large_faint_nhuge_n2masx_nisol_nclustered_touching_lr = M_large_faint_nhuge_n2masx_nisol_nclustered_touching.submask(np.log10(1+lofarcat['LR']) > lLR_thresh2,
-                        'LR'.format(f=fluxcut2, s=2*size_large),
-                        'lr',
-                        edgelabel='Y',
-                        qlabel='LR',
-                        color='orange',
-                        masterlist=masterlist)
-    lofarcat['ID_flag'][M_large_faint_nhuge_n2masx_nisol_nclustered_touching_lr.mask] = 5
-    
-    
-    M_large_faint_nhuge_n2masx_nisol_nclustered_touching_nlr = M_large_faint_nhuge_n2masx_nisol_nclustered_touching.submask(np.log10(1+lofarcat['LR']) <= lLR_thresh2,
-                        'NLR'.format(f=fluxcut2, s=2*size_large),
-                        'nlr',
-                        edgelabel='N',
-                        qlabel='no LR',
-                        color='orange',
-                        masterlist=masterlist)
-    lofarcat['ID_flag'][M_large_faint_nhuge_n2masx_nisol_nclustered_touching_nlr.mask] = 5
+    #M_large_faint_nhuge_n2masx_nisol_nclustered_ntouching = M_large_faint_nhuge_n2masx_nisol_nclustered.submask(lofarcat['NNC_sep'] > (lofarcat['NNC_Maj'] + lofarcat['Maj']),
+                        #'ntouching',
+                        #'ntouching',
+                        #edgelabel='N',
+                        #qlabel='not touching\nS?',
+                        #color='orange',
+                        #masterlist=masterlist)
+    #lofarcat['ID_flag'][M_large_faint_nhuge_n2masx_nisol_nclustered_ntouching.mask] = 5
     
     
     
-    M_large_faint_nhuge_n2masx_nisol_nclustered_ntouching_S = M_large_faint_nhuge_n2masx_nisol_nclustered_ntouching.submask(lofarcat['S_Code'] =='S',
-                        'S'.format(f=fluxcut2, s=2*size_large),
-                        'S',
-                        edgelabel='Y',
-                        qlabel='LR',
-                        color='orange',
-                        masterlist=masterlist)
-    lofarcat['ID_flag'][M_large_faint_nhuge_n2masx_nisol_nclustered_ntouching_S.mask] = 5
+    
+    #M_large_faint_nhuge_n2masx_nisol_nclustered_touching_lr = M_large_faint_nhuge_n2masx_nisol_nclustered_touching.submask(np.log10(1+lofarcat['LR']) > lLR_thresh2,
+                        #'LR'.format(f=fluxcut2, s=2*size_large),
+                        #'lr',
+                        #edgelabel='Y',
+                        #qlabel='LR',
+                        #color='orange',
+                        #masterlist=masterlist)
+    #lofarcat['ID_flag'][M_large_faint_nhuge_n2masx_nisol_nclustered_touching_lr.mask] = 5
+    
+    
+    #M_large_faint_nhuge_n2masx_nisol_nclustered_touching_nlr = M_large_faint_nhuge_n2masx_nisol_nclustered_touching.submask(np.log10(1+lofarcat['LR']) <= lLR_thresh2,
+                        #'NLR'.format(f=fluxcut2, s=2*size_large),
+                        #'nlr',
+                        #edgelabel='N',
+                        #qlabel='no LR',
+                        #color='orange',
+                        #masterlist=masterlist)
+    #lofarcat['ID_flag'][M_large_faint_nhuge_n2masx_nisol_nclustered_touching_nlr.mask] = 5
     
     
     
-    M_large_faint_nhuge_n2masx_nisol_nclustered_ntouching_S_lr = M_large_faint_nhuge_n2masx_nisol_nclustered_ntouching_S.submask(np.log10(1+lofarcat['LR']) > lLR_thresh2,
-                        'LR'.format(f=fluxcut2, s=2*size_large),
-                        'lr',
-                        edgelabel='Y',
-                        qlabel='LR',
-                        color='orange',
-                        masterlist=masterlist)
-    lofarcat['ID_flag'][M_large_faint_nhuge_n2masx_nisol_nclustered_ntouching_S_lr.mask] = 5
+    #M_large_faint_nhuge_n2masx_nisol_nclustered_ntouching_S = M_large_faint_nhuge_n2masx_nisol_nclustered_ntouching.submask(lofarcat['S_Code'] =='S',
+                        #'S'.format(f=fluxcut2, s=2*size_large),
+                        #'S',
+                        #edgelabel='Y',
+                        #qlabel='LR',
+                        #color='orange',
+                        #masterlist=masterlist)
+    #lofarcat['ID_flag'][M_large_faint_nhuge_n2masx_nisol_nclustered_ntouching_S.mask] = 5
     
     
-    M_large_faint_nhuge_n2masx_nisol_nclustered_ntouching_S_nlr = M_large_faint_nhuge_n2masx_nisol_nclustered_ntouching_S.submask(np.log10(1+lofarcat['LR']) <= lLR_thresh2,
-                        'NLR'.format(f=fluxcut2, s=2*size_large),
-                        'nlr',
-                        edgelabel='N',
-                        qlabel='no LR',
-                        color='orange',
-                        masterlist=masterlist)
-    lofarcat['ID_flag'][M_large_faint_nhuge_n2masx_nisol_nclustered_ntouching_S_nlr.mask] = 5
+    
+    #M_large_faint_nhuge_n2masx_nisol_nclustered_ntouching_S_lr = M_large_faint_nhuge_n2masx_nisol_nclustered_ntouching_S.submask(np.log10(1+lofarcat['LR']) > lLR_thresh2,
+                        #'LR'.format(f=fluxcut2, s=2*size_large),
+                        #'lr',
+                        #edgelabel='Y',
+                        #qlabel='LR',
+                        #color='orange',
+                        #masterlist=masterlist)
+    #lofarcat['ID_flag'][M_large_faint_nhuge_n2masx_nisol_nclustered_ntouching_S_lr.mask] = 5
     
     
-    M_large_faint_nhuge_n2masx_nisol_nclustered_ntouching_nS = M_large_faint_nhuge_n2masx_nisol_nclustered_ntouching.submask(lofarcat['S_Code'] !='S',
-                        'NS'.format(f=fluxcut2, s=2*size_large),
-                        'nS',
-                        edgelabel='N',
-                        qlabel='to check?',
-                        color='orange',
-                        masterlist=masterlist)
-    lofarcat['ID_flag'][M_large_faint_nhuge_n2masx_nisol_nclustered_ntouching_nS.mask] = 5
+    #M_large_faint_nhuge_n2masx_nisol_nclustered_ntouching_S_nlr = M_large_faint_nhuge_n2masx_nisol_nclustered_ntouching_S.submask(np.log10(1+lofarcat['LR']) <= lLR_thresh2,
+                        #'NLR'.format(f=fluxcut2, s=2*size_large),
+                        #'nlr',
+                        #edgelabel='N',
+                        #qlabel='no LR',
+                        #color='orange',
+                        #masterlist=masterlist)
+    #lofarcat['ID_flag'][M_large_faint_nhuge_n2masx_nisol_nclustered_ntouching_S_nlr.mask] = 5
+    
+    
+    #M_large_faint_nhuge_n2masx_nisol_nclustered_ntouching_nS = M_large_faint_nhuge_n2masx_nisol_nclustered_ntouching.submask(lofarcat['S_Code'] !='S',
+                        #'NS'.format(f=fluxcut2, s=2*size_large),
+                        #'nS',
+                        #edgelabel='N',
+                        #qlabel='to check?',
+                        #color='orange',
+                        #masterlist=masterlist)
+    #lofarcat['ID_flag'][M_large_faint_nhuge_n2masx_nisol_nclustered_ntouching_nS.mask] = 5
     
     
     M_large_faint_nhuge_n2masx_isol = M_large_faint_nhuge_n2masx.submask(lofarcat['NN_sep'] > separation1 + size_large,
                         'large isolated (s<{s:.0f}", NN>{nn:.0f}")'.format(s=size_large, nn=separation1 + size_large),
                         'isol',
                         edgelabel='Y',
-                        qlabel='S?',
+                        qlabel='TBC?',
                         #qlabel='LR > {l:.2f}?'.format(l=lLR_thresh2),
                         #color='cyan',
                         masterlist=masterlist)
 
-    M_large_faint_nhuge_n2masx_isol_nS = M_large_faint_nhuge_n2masx_isol.submask(lofarcat['S_Code'] != 'S',
-                        'nS',
-                        'nS',
-                        edgelabel='N',
-                        qlabel='nS',
-                        color='orange',
-                        masterlist=masterlist)
+    #M_large_faint_nhuge_n2masx_isol_nS = M_large_faint_nhuge_n2masx_isol.submask(lofarcat['S_Code'] != 'S',
+                        #'nS',
+                        #'nS',
+                        #edgelabel='N',
+                        #qlabel='nS',
+                        #color='orange',
+                        #masterlist=masterlist)
     
-    M_large_faint_nhuge_n2masx_isol_S = M_large_faint_nhuge_n2masx_isol.submask(lofarcat['S_Code'] == 'S',
-                        'S',
-                        'S',
-                        edgelabel='Y',
-                        qlabel='S',
-                        color='orange',
-                        masterlist=masterlist)
+    #M_large_faint_nhuge_n2masx_isol_S = M_large_faint_nhuge_n2masx_isol.submask(lofarcat['S_Code'] == 'S',
+                        #'S',
+                        #'S',
+                        #edgelabel='Y',
+                        #qlabel='S',
+                        #color='orange',
+                        #masterlist=masterlist)
     
 
-    M_large_faint_nhuge_n2masx_isol_S_lr = M_large_faint_nhuge_n2masx_isol_S.submask(np.log10(1+lofarcat['LR']) > lLR_thresh2,
-                        'LR'.format(f=fluxcut2, s=2*size_large),
-                        'lr',
-                        edgelabel='Y',
-                        qlabel='accept LR?',
-                        color='cyan',
-                        masterlist=masterlist)
-    lofarcat['ID_flag'][M_large_faint_nhuge_n2masx_isol_S_lr.mask] = 5
+    #M_large_faint_nhuge_n2masx_isol_S_lr = M_large_faint_nhuge_n2masx_isol_S.submask(np.log10(1+lofarcat['LR']) > lLR_thresh2,
+                        #'LR'.format(f=fluxcut2, s=2*size_large),
+                        #'lr',
+                        #edgelabel='Y',
+                        #qlabel='accept LR?',
+                        #color='cyan',
+                        #masterlist=masterlist)
+    #lofarcat['ID_flag'][M_large_faint_nhuge_n2masx_isol_S_lr.mask] = 5
 
-    M_large_faint_nhuge_n2masx_isol_S_nlr = M_large_faint_nhuge_n2masx_isol_S.submask(np.log10(1+lofarcat['LR']) <= lLR_thresh2,
-                        'NLR'.format(f=fluxcut2, s=2*size_large),
-                        'nlr',
-                        edgelabel='N',
-                        qlabel='TBC?',
-                        color='orange',
-                        masterlist=masterlist)
-    lofarcat['ID_flag'][M_large_faint_nhuge_n2masx_isol_S_nlr.mask] = 5
+    #M_large_faint_nhuge_n2masx_isol_S_nlr = M_large_faint_nhuge_n2masx_isol_S.submask(np.log10(1+lofarcat['LR']) <= lLR_thresh2,
+                        #'NLR'.format(f=fluxcut2, s=2*size_large),
+                        #'nlr',
+                        #edgelabel='N',
+                        #qlabel='TBC?',
+                        #color='orange',
+                        #masterlist=masterlist)
+    #lofarcat['ID_flag'][M_large_faint_nhuge_n2masx_isol_S_nlr.mask] = 5
 
 
     # compact 
