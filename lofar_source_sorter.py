@@ -272,8 +272,8 @@ if __name__=='__main__':
         # for now, if one of the gaussian LR is better, take that
         if lofarcat['G_LR_max'][i] > lofarcat['LR'][i]:
             lofarcat['LR'][i] = lofarcat['G_LR_max'][i]
-            lofarcat['LR_ra'][i] = lofargcat['LR_dec'][ig[igi]]
-            lofarcat['LR_dec'][i] = lofargcat['LR_ra'][ig[igi]]
+            lofarcat['LR_ra'][i] = lofargcat['LR_ra'][ig[igi]]
+            lofarcat['LR_dec'][i] = lofargcat['LR_dec'][ig[igi]]
         # how many unique acceptable matches are there for the gaussian components
         matches_ra = np.unique(lofargcat['LR_ra'][ig][np.log10(1+lofargcat['LR'][ig]) > 0.36])
         n_matches_ra = len(matches_ra)
