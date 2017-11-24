@@ -77,10 +77,11 @@ if __name__=='__main__':
 
     # LGZ output
     #lgz_compcat_file = os.path.join(path,'LGZ_v0/HETDEX-LGZ-comps-v0.5.fits')
-    lgz_cat_file = os.path.join(path,'LGZ_v0/HETDEX-LGZ-cat-v0.5-filtered.fits') 
+    #lgz_cat_file = os.path.join(path,'LGZ_v0/HETDEX-LGZ-cat-v0.5-filtered.fits') 
+    lgz_cat_file = os.path.join(path,'LGZ_v0/HETDEX-LGZ-cat-v0.5-filtered-zooms.fits') 
     lgz_remove_file = os.path.join(path,'LGZ_v0/remove.txt')
 
-    merge_out_file = os.path.join(path,'LOFAR_HBA_T1_DR1_merge_ID_v0.2.fits')    
+    merge_out_file = os.path.join(path,'LOFAR_HBA_T1_DR1_merge_ID_v0.5.fits')    
 
     lofarcat0 = Table.read(lofarcat_orig_file)
     lofarcat_sorted = Table.read(lofarcat_file_srt)
@@ -324,7 +325,7 @@ if __name__=='__main__':
         if uu > 1: 
             #print nn,uu
             tt=mergecat[mergecat['ID_name']==nn]
-            if tt['ID_flag'][0] == 3:
+            if tt['ID_flag'][0] == 1:
                 xx  = Table([tt['Source_Name'], tt['ID_flag'], tt['ID_name'], tt['FC_flag'], tt['Art_prob'],tt['Blend_prob'],tt['Zoom_prob'],tt['Hostbroken_prob'],tt['Total_flux']])
                 print xx
                 tout = vstack([tout,tt])
