@@ -110,6 +110,29 @@ tt['huge_faint_flag'][tt['Source_Name']=='ILTJ105949.84+534811.6'] = 1
 lofarcat.add_column(tt['huge_faint_flag'])
 
 
+### large, not huge faint
+#(1) Send to LGZ
+#(2) Accept ML match
+#(3) No good match
+#(4) Too zoomed in
+#(5) Artefact
+
+huge_faint_vc_cat_file = 'toclassify_171124//large_faint_toclassify-vflag.fits'
+huge_faint_vc_cat = Table.read(huge_faint_vc_cat_file)
+
+if 'nhuge_faint_flag' in lofarcat.colnames:
+    lofarcat.remove_column('nhuge_faint_flag')
+lofarcat.sort('Source_Name')
+tt=join(lofarcat, huge_faint_vc_cat, join_type='left')
+tt['visual_flag'].fill_value = 0
+tt = tt.filled()
+tt.sort('Source_Name')
+tt.rename_column('visual_flag','nhuge_faint_flag')
+
+
+lofarcat.add_column(tt['nhuge_faint_flag'])
+
+
 
 
 #################################################################################
