@@ -20,8 +20,20 @@ https://github.com/mhardcastle/lgz
 * NN_sep - distance (in arcsec) to NN
 * NN_idx - catalogue index of NN
 * NN5_sep - distance to the 4th nearest neighbour
-* NN_Total_flux
-* NN_Frat
-* NN_Maj
+* NN_Total_flux - flux of NN
+* NN_Frat - flux ratio of source to NN
+* NN_Maj - size of NN
 
 
+## Workflow:
+* `find_artefact_candidates.py` -- find candidate artefacts 
+* visual confirmation of artefacts with classify.py from lgz
+* `lofar_source_sorter.py` -- 
+* `get_visual_flags.py` -- apply flags generated from several passes of classify.py on different catagories
+* `write_catalogues.py` -- write final catalogue, merging outputs from LGZ, ML, large galaxy strands
+
+#### misc other scripts
+* `fix_2mass_catalogue.py` -- manually fix some very wrong sizes in the 2MASX catalogue
+* `get_large_galaxies.py` -- produce catalogues of the sources associated with very large optical galaxies
+* `get_intersecting_sources.py` -- flag the sources that intersect/overlap
+* `make_summary.py` -- combine inspection plots into single pdf file
