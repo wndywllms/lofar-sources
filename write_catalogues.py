@@ -216,6 +216,11 @@ if __name__=='__main__':
         complist = lofarcat_sorted[i]
         assoc_2mass = lofarcat_sorted[i[0]]
         
+        assoc_2mass['RA']=np.average(complist['RA'], weights=complist['Total_flux'])
+        assoc_2mass['DEC']=np.average(complist['DEC'], weights=complist['Total_flux'])
+        sc = SkyCoord(assoc_2mass['RA'],assoc_2mass['DEC'],frame='icrs')
+        sc = sc.to_string(style='hmsdms',sep='',precision=2)
+        assoc_2mass['Source_Name'] = str('ILTJ'+sc).replace(' ','')[:-1]
         
         assoc_2mass['E_RA']=np.sqrt(np.sum(complist['E_RA']**2.0))/len(complist)
         assoc_2mass['E_DEC']=np.sqrt(np.sum(complist['E_DEC']**2.0))/len(complist)
