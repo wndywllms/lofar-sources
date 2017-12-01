@@ -81,10 +81,13 @@ if __name__=='__main__':
     lgz_cat_file = os.path.join(path,'LGZ_v0/HETDEX-LGZ-cat-v0.5-filtered-zooms.fits') 
     lgz_remove_file = os.path.join(path,'LGZ_v0/remove.txt')
 
-    merge_out_file = os.path.join(path,'LOFAR_HBA_T1_DR1_merge_ID_v0.5.fits')    
+    comp_out_file = os.path.join(path,'LOFAR_HBA_T1_DR1_merge_ID_v0.5.comp.fits')
+    merge_out_file = os.path.join(path,'LOFAR_HBA_T1_DR1_merge_ID_v0.5.fits')
+    merge_out_full_file = merge_out_file.replace('.fits','.full.fits')
 
     lofarcat0 = Table.read(lofarcat_orig_file)
     lofarcat_sorted = Table.read(lofarcat_file_srt)
+    lofarcat_sorted_antd = Table.read(lofarcat_file_srt)
     lgz_remove = [l.rstrip() for l in open(lgz_remove_file,'r').readlines()]
     
     psmlcat = Table.read(psmlcat_file)
@@ -93,9 +96,24 @@ if __name__=='__main__':
     lgz_cat = Table.read(lgz_cat_file)
     
     
+    print 'Starting with {:d} sources'.format(len(lofarcat_sorted))
 
-
+    ### add some needed columns
     
+    lofarcat_sorted.add_column(Column(np.zeros(len(lofarcat_sorted),dtype='S60'),'ID_name'))
+    #lofarcat_sorted.add_column(Column(['None']*len(lofarcat_sorted),'ID_name'))
+    lofarcat_sorted.add_column(Column(np.nan*np.zeros(len(lofarcat_sorted),dtype=float),'ID_ra'))
+    lofarcat_sorted.add_column(Column(np.nan*np.zeros(len(lofarcat_sorted),dtype=float),'ID_dec'))
+    
+    
+    ##
+    lofarcat_sorted.add_column(Column(np.nan*np.zeros(len(lofarcat_sorted),dtype=float),'ML_LR'))
+
+    #lofarcat_sorted_antd.add_column(Column(np.nan*np.zeros(len(lofarcat_sorted_antd),dtype=float),'Removed'))
+    tc  = lofarcat_sorted['Source_Name'].copy()
+    tc.name = 'New_Source_Name'
+    lofarcat_sorted_antd.add_column(tc)
+
     ## remove sources associated/flagged by LGZ v0
     # ideally this would just remove the components in the LGZ comp catalogue  - but using legacy catalogues mean that these don't directly map onto the new sources
     # martin has produced remove.txt to do this.
@@ -109,13 +127,17 @@ if __name__=='__main__':
     tlgz_remove = Table([Column(lgz_remove,'Source_Name'), Column(np.ones(len(lgz_remove)),'LGZ_remove')])
     lofarcat_sorted.sort('Source_Name')
     tc = join(lofarcat_sorted, tlgz_remove, join_type='left')
+    tc['LGZ_remove'].fill_value = 0
+    tc = tc.filled()
     tc.sort('Source_Name')
     lgz_select = (tc['LGZ_remove']!=1)
 
+    #import ipdb ; ipdb.set_trace()
 
     print 'Removing {n:d} sources associated in LGZv0'.format(n=np.sum(~lgz_select))
     lofarcat_sorted = lofarcat_sorted[lgz_select]
-
+    # we don't know what their new names are
+    lofarcat_sorted_antd['New_Source_Name'][~lgz_select] = 'LGZ'
 
 
     ## remove artefacts
@@ -123,19 +145,12 @@ if __name__=='__main__':
     print 'Throwing away {n:d} artefacts'.format(n=np.sum(lofarcat_sorted['Artefact_flag'] == 1))
     lofarcat_sorted = lofarcat_sorted[lofarcat_sorted['Artefact_flag'] == 0]
     
+    # artefacts have no name in the merged catalogue cos they don't appear there
+    lofarcat_sorted_antd['New_Source_Name'][lofarcat_sorted_antd['Artefact_flag'] != 0] = ''
+    
     print 'left with {n:d} sources'.format(n=len(lofarcat_sorted))
 
 
-    ### add some needed columns
-    
-    lofarcat_sorted.add_column(Column(np.zeros(len(lofarcat_sorted),dtype='S60'),'ID_name'))
-    #lofarcat_sorted.add_column(Column(['None']*len(lofarcat_sorted),'ID_name'))
-    lofarcat_sorted.add_column(Column(np.nan*np.zeros(len(lofarcat_sorted),dtype=float),'ID_ra'))
-    lofarcat_sorted.add_column(Column(np.nan*np.zeros(len(lofarcat_sorted),dtype=float),'ID_dec'))
-    
-    
-    ##
-    lofarcat_sorted.add_column(Column(np.nan*np.zeros(len(lofarcat_sorted),dtype=float),'ML_LR'))
 
 
     # handle TBC
@@ -208,6 +223,7 @@ if __name__=='__main__':
     nmerge = np.sum(ucounts>1)
     nn = 0
     for n in unames[ucounts>1]:
+        
         i = np.where(lofarcat_sorted['ID_name'] == n)[0]
         nn += len(i)
         #print n, i
@@ -218,7 +234,7 @@ if __name__=='__main__':
         
         assoc_2mass['RA']=np.average(complist['RA'], weights=complist['Total_flux'])
         assoc_2mass['DEC']=np.average(complist['DEC'], weights=complist['Total_flux'])
-        sc = SkyCoord(assoc_2mass['RA'],assoc_2mass['DEC'],frame='icrs')
+        sc = SkyCoord(assoc_2mass['RA'],assoc_2mass['DEC'],frame='icrs', unit='deg')
         sc = sc.to_string(style='hmsdms',sep='',precision=2)
         assoc_2mass['Source_Name'] = str('ILTJ'+sc).replace(' ','')[:-1]
         
@@ -238,13 +254,20 @@ if __name__=='__main__':
             assoc_2mass[t] = np.nan
         assoc_2mass['Isl_id'] = -99
         
-        c =SkyCoord(complist['RA'], complist['DEC'])
+        c =SkyCoord(complist['RA'], complist['DEC'], unit='deg')
                 
 
         # size is max of Maj or sep between centres
         assoc_2mass['LGZ_Size']=np.max([np.max(complist['Maj']) , np.max([ci.separation(c).max().to('arcsec').value for ci in c])])
         # TBD 'Mosiac_ID'
         assoc_2mass['LGZ_Assoc'] = len(complist)
+        
+        #import ipdb ; ipdb.set_trace()
+        
+        # to save the new names
+        for c in complist:
+            ni = np.where(lofarcat_sorted_antd['Source_Name'] == c['Source_Name'])[0]
+            lofarcat_sorted_antd['New_Source_Name'][ni] = assoc_2mass['Source_Name']
         
         
         lofarcat_add_2mass_mult = vstack([lofarcat_add_2mass_mult, assoc_2mass]) 
@@ -309,6 +332,14 @@ if __name__=='__main__':
     for u,c in zip(unique, counts):
         print u,c
 
+
+    if os.path.isfile(comp_out_file):
+        os.remove(comp_out_file)
+    lofarcat_sorted_antd.write(comp_out_file)
+
+    if os.path.isfile(merge_out_full_file):
+        os.remove(merge_out_full_file)
+    mergecat.write(merge_out_full_file)
 
     ## throw away extra columns
     mergecat.keep_columns(['Source_Name', 'RA', 'E_RA', 'DEC', 'E_DEC', 'Peak_flux', 'E_Peak_flux', 'Total_flux', 'E_Total_flux', 'Maj', 'E_Maj', 'Min', 'E_Min', 'PA', 'E_PA', 'Isl_rms', 'S_Code', 'Mosaic_ID', 'ID_flag', 'ID_name', 'ID_ra', 'ID_dec', 'ML_LR', 'LGZ_Size', 'LGZ_Assoc', 'LGZ_Assoc_Qual', 'LGZ_ID_Qual'])
