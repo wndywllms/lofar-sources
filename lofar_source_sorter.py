@@ -493,231 +493,93 @@ if __name__=='__main__':
                         'faint',
                         'large (s>{s:.0f}") & faint (S<={f:.0f} mJy)'.format(f=fluxcut, s=size_large),
                         edgelabel='N',
-                        qlabel='Big?\n(s>{s:.0f}")\n(visual confirmation)'.format(s=2*size_large),
+                        qlabel='Visual sorting',
                         #color='orange',
                         masterlist=masterlist)
 
     # huge faint 
     huge = (lofarcat['Maj'] > 2*size_large)
-    M_large_faint_huge_artefact = M_large_faint.submask(huge & (huge_faint_flag ==4),
+    
+    # artefacts
+    lf_artefacts =  (huge & (huge_faint_flag ==4)) | \
+        (lofarcat['2MASX'] & (nhuge_2masx_flag==4)) | \
+        ((lofarcat['NN4_sep'] <= separation1+size_large) & (Lclustered_flag == 1)) | \
+        (nhuge_faint_flag == 5)
+    
+    # complex
+    lf_complex = (huge & (huge_faint_flag ==1)) | \
+        (lofarcat['2MASX'] & (nhuge_2masx_flag==2)) | \
+        ((lofarcat['NN4_sep'] <= separation1+size_large) & (Lclustered_flag == 2)) | \
+        (nhuge_faint_flag == 1)
+    
+    # complex-zoom
+    lf_complex_zoom = (nhuge_faint_flag == 4)
+    
+    # bright galaxy
+    lf_bright =  (lofarcat['2MASX'] & (nhuge_2masx_flag==1)) 
+    
+    # no match possible
+    lf_nomatch =  ( huge & (huge_faint_flag ==3)) | \
+        (nhuge_faint_flag == 3)
+    
+    # good lr
+    lf_match =   (huge & (huge_faint_flag ==2)) |  \
+        (nhuge_faint_flag == 2)
+    
+    
+    M_large_faint_artefact = M_large_faint.submask(lf_artefacts,
                         'artefact',
-                        'huge (s>{s:.0f}") & v faint (S<={f:.0f} mJy)'.format(f=fluxcut2, s=2*size_large),
                         edgelabel='N(r)',
                         qlabel='artefact\n(visually confirmed)',
                         color='gray',
                         masterlist=masterlist)
-    lofarcat['ID_flag'][M_large_faint_huge_artefact.mask] = -1
+    lofarcat['ID_flag'][M_large_faint_artefact.mask] = -1
     
-    M_large_faint_huge_complex = M_large_faint.submask(huge & (huge_faint_flag ==1),
+    M_large_faint_complex = M_large_faint.submask(lf_complex,
                         'complex',
-                        'huge (s>{s:.0f}") & v faint (S<={f:.0f} mJy)'.format(f=fluxcut2, s=2*size_large),
                         edgelabel='Y(*)',
                         qlabel='complex\n(LGZ)',
                         color='green',
                         masterlist=masterlist)
-    lofarcat['ID_flag'][M_large_faint_huge_complex.mask] = 30
-    lofarcat['LGZ_flag'][M_large_faint_huge_complex.mask] = 2
+    lofarcat['ID_flag'][M_large_faint_complex.mask] = 30
+    lofarcat['LGZ_flag'][M_large_faint_complex.mask] = 2
     
-    M_large_faint_huge_match = M_large_faint.submask(huge & (huge_faint_flag ==2),
+    M_large_faint_complex_zoom = M_large_faint.submask(lf_complex_zoom,
+                        'lgzz',
+                        edgelabel='complex-zoom',
+                        qlabel='LGZ-zoom',
+                        color='green',
+                        masterlist=masterlist)
+    lofarcat['ID_flag'][M_large_faint_complex.mask] = 30
+    lofarcat['LGZ_flag'][M_large_faint_complex.mask] = 20
+    
+    
+    M_large_faint_match = M_large_faint.submask(lf_match,
                         'match',
-                        'huge (s>{s:.0f}") & v faint (S<={f:.0f} mJy)'.format(f=fluxcut2, s=2*size_large),
                         edgelabel='Y(m)',
-                        qlabel='Bright galaxy\n(visually confirmed)',
+                        qlabel='Accept ML\n(visually confirmed)',
                         color='blue',
                         masterlist=masterlist)
-    lofarcat['ID_flag'][M_large_faint_huge_match.mask] = 2
+    lofarcat['ID_flag'][M_large_faint_match.mask] = 2
     
-    # huge faint 
-    M_large_faint_huge_nomatch = M_large_faint.submask(huge & (huge_faint_flag ==3),
+    M_large_faint_nomatch = M_large_faint.submask(lf_nomatch,
                         'nomatch',
-                        'huge (s>{s:.0f}") & v faint (S<={f:.0f} mJy)'.format(f=fluxcut2, s=2*size_large),
                         edgelabel='Y(nm)',
                         qlabel='No match possible\n(visually confirmed)',
                         color='red',
                         masterlist=masterlist)
-    lofarcat['ID_flag'][M_large_faint_huge_nomatch.mask] = 4
+    lofarcat['ID_flag'][M_large_faint_nomatch.mask] = 4
         
-    # nhuge faint 
-    M_large_faint_nhuge = M_large_faint.submask(~huge,
-                        'nhuge',
-                        'large (s>{s:.0f}") & not v faint (S>{f:.0f} mJy)'.format(f=fluxcut2, s=2*size_large),
-                        edgelabel='N',
-                        qlabel='2MASX?\n(visual confirmation)',
-                        #color='orange',
-                        masterlist=masterlist)
-
-
-    # large faint -2MASX and vflag
-    M_large_faint_nhuge_art = M_large_faint_nhuge.submask(lofarcat['2MASX'] & (nhuge_2masx_flag==4),
-                        'artefact',
-                        edgelabel='N(r)',
-                        qlabel='artefact\n(visually confirmed)',
-                        color='gray',
-                        masterlist=masterlist)
-    lofarcat['ID_flag'][M_large_faint_nhuge_art.mask] = -1
-    
-    # large faint -2MASX and vflag
-    M_large_faint_nhuge_complex = M_large_faint_nhuge.submask(lofarcat['2MASX'] & (nhuge_2masx_flag==2),
-                        'complex',
-                        'large (s>{s:.0f}") & 2MASX'.format(f=fluxcut2, s=size_large),
-                        edgelabel='N(*)',
-                        qlabel='complex\n(LGZ)',
-                        color='green',
-                        masterlist=masterlist)
-    lofarcat['ID_flag'][M_large_faint_nhuge_complex.mask] = 30
-    lofarcat['LGZ_flag'][M_large_faint_nhuge_complex.mask] = 2
-    
-    # large faint -2MASX and vflag
-    M_large_faint_nhuge_2masx = M_large_faint_nhuge.submask(lofarcat['2MASX'] & (nhuge_2masx_flag==1),
+    M_large_faint_2masx = M_large_faint.submask(lf_bright,
                         '2masx',
-                        'large (s>{s:.0f}") & 2MASX'.format(f=fluxcut2, s=size_large),
                         edgelabel='Y',
-                        qlabel='take 2MASX match\n(visually confirmed)',
+                        qlabel='bright galaxy\n(visually confirmed)',
                         color='blue',
                         masterlist=masterlist)
-    lofarcat['ID_flag'][M_large_faint_nhuge_2masx.mask] = 2
+    lofarcat['ID_flag'][M_large_faint_2masx.mask] = 2
     
 
-    # large faint -n2MASX and vflag
-    M_large_faint_nhuge_n2masx = M_large_faint_nhuge.submask(~lofarcat['2MASX'] | (lofarcat['2MASX'] & (nhuge_2masx_flag==3)),
-                        'n2masx',
-                        'large (s>{s:.0f}") & !2MASX'.format(s=size_large),
-                        qlabel='Isolated?\n(NN>{nn:.0f}")'.format(nn=separation1 + size_large),
-                        edgelabel='N',
-                        masterlist=masterlist)
-
-    M_large_faint_nhuge_n2masx_nisol = M_large_faint_nhuge_n2masx.submask(lofarcat['NN_sep'] <= separation1 + size_large,
-                        'nisol',
-                        'large not isolated (s<{s:.0f}", NN>{nn:.0f}")'.format(s=size_large, nn=separation1 + size_large),
-                        edgelabel='N',
-                        qlabel='Clustered?\n(NN3<{nn:.0f}"))\n(visual confirmation)'.format(s=size_large, nn=separation1+size_large),
-                        masterlist=masterlist)
-    
-    
-    M_large_faint_nhuge_n2masx_nisol_art = M_large_faint_nhuge_n2masx_nisol.submask((lofarcat['NN4_sep'] <= separation1+size_large) & (Lclustered_flag == 1),
-                        'artefact',
-                        edgelabel='N(r)',
-                        qlabel='artefact\n(visually confirmated)',
-                        color='gray',
-                        masterlist=masterlist)
-    lofarcat['ID_flag'][M_large_faint_nhuge_n2masx_nisol_art.mask] = -1
-    
-    M_large_faint_nhuge_n2masx_nisol_clustered = M_large_faint_nhuge_n2masx_nisol.submask((lofarcat['NN4_sep'] <= separation1+size_large) & (Lclustered_flag == 2),
-                        'complex',
-                        edgelabel='Y',
-                        qlabel='complex\n(LGZ)',
-                        color='green',
-                        masterlist=masterlist)
-    lofarcat['ID_flag'][M_large_faint_nhuge_n2masx_nisol_clustered.mask] = 30
-    lofarcat['LGZ_flag'][M_large_faint_nhuge_n2masx_nisol_clustered.mask] = 2
-
-    M_large_faint_nhuge_n2masx_nisol_nclustered = M_large_faint_nhuge_n2masx_nisol.submask((lofarcat['NN4_sep'] > separation1+size_large) | ((lofarcat['NN4_sep'] <= separation1+size_large) & (Lclustered_flag == 3)),
-                        'nclustered',
-                        edgelabel='N',
-                        qlabel='visual check?',
-                        masterlist=masterlist)
-    
-    #nhuge_faint_flag
-    #(1) Send to LGZ
-    #(2) Accept ML match
-    #(3) No good match
-    #(4) Too zoomed in
-    #(5) Artefact
-    M_large_faint_nhuge_n2masx_nisol_nclustered_art = M_large_faint_nhuge_n2masx_nisol_nclustered.submask(nhuge_faint_flag == 5,
-                        'artefact',
-                        edgelabel='N(r)',
-                        qlabel='artefact',
-                        color='gray',
-                        masterlist=masterlist)
-    lofarcat['ID_flag'][M_large_faint_nhuge_n2masx_nisol_nclustered_art.mask] = -1
-    
-    M_large_faint_nhuge_n2masx_nisol_nclustered_lgz = M_large_faint_nhuge_n2masx_nisol_nclustered.submask(nhuge_faint_flag == 1,
-                        'lgz',
-                        edgelabel='complex',
-                        qlabel='LGZ',
-                        color='green',
-                        masterlist=masterlist)
-    lofarcat['ID_flag'][M_large_faint_nhuge_n2masx_nisol_nclustered_lgz.mask] = 30
-    lofarcat['LGZ_flag'][M_large_faint_nhuge_n2masx_nisol_nclustered_lgz.mask] = 2
-    
-    M_large_faint_nhuge_n2masx_nisol_nclustered_lgzZ = M_large_faint_nhuge_n2masx_nisol_nclustered.submask(nhuge_faint_flag == 4,
-                        'lgzz',
-                        edgelabel='complex-zoom',
-                        qlabel='LGZ-zoom',
-                        color='green',
-                        masterlist=masterlist)
-    lofarcat['ID_flag'][M_large_faint_nhuge_n2masx_nisol_nclustered_lgzZ.mask] = 30
-    lofarcat['LGZ_flag'][M_large_faint_nhuge_n2masx_nisol_nclustered_lgzZ.mask] = 20
-    
-    M_large_faint_nhuge_n2masx_nisol_nclustered_lr = M_large_faint_nhuge_n2masx_nisol_nclustered.submask(nhuge_faint_flag == 2,
-                        'lr',
-                        edgelabel='ML',
-                        qlabel='Accept LR',
-                        color='blue',
-                        masterlist=masterlist)
-    lofarcat['ID_flag'][M_large_faint_nhuge_n2masx_nisol_nclustered_lr.mask] = 1
-    
-    M_large_faint_nhuge_n2masx_nisol_nclustered_nlr = M_large_faint_nhuge_n2masx_nisol_nclustered.submask(nhuge_faint_flag == 3,
-                        'nlr',
-                        edgelabel='n',
-                        qlabel='no match',
-                        color='red',
-                        masterlist=masterlist)
-    lofarcat['ID_flag'][M_large_faint_nhuge_n2masx_nisol_nclustered_nlr.mask] = 4
-    
-    
-    
-    M_large_faint_nhuge_n2masx_isol = M_large_faint_nhuge_n2masx.submask(lofarcat['NN_sep'] > separation1 + size_large,
-                        'isol',
-                        'large isolated (s<{s:.0f}", NN>{nn:.0f}")'.format(s=size_large, nn=separation1 + size_large),
-                        edgelabel='Y',
-                        qlabel='visual check?',
-                        #qlabel='LR > {l:.2f}?'.format(l=lLR_thresh2),
-                        #color='cyan',
-                        masterlist=masterlist)
-    
-    M_large_faint_nhuge_n2masx_isol_art = M_large_faint_nhuge_n2masx_isol.submask(nhuge_faint_flag == 5,
-                        'artefact',
-                        edgelabel='N(r)',
-                        qlabel='artefact',
-                        color='gray',
-                        masterlist=masterlist)
-    lofarcat['ID_flag'][M_large_faint_nhuge_n2masx_isol_art.mask] = -1
-    
-    M_large_faint_nhuge_n2masx_isol_lgz = M_large_faint_nhuge_n2masx_isol.submask(nhuge_faint_flag == 1,
-                        'lgz',
-                        edgelabel='complex',
-                        qlabel='LGZ',
-                        color='green',
-                        masterlist=masterlist)
-    lofarcat['ID_flag'][M_large_faint_nhuge_n2masx_isol_lgz.mask] = 30
-    lofarcat['LGZ_flag'][M_large_faint_nhuge_n2masx_isol_lgz.mask] = 2
-    
-    M_large_faint_nhuge_n2masx_isol_lgzZ = M_large_faint_nhuge_n2masx_isol.submask(nhuge_faint_flag == 4,
-                        'lgzz',
-                        edgelabel='complex-zoom',
-                        qlabel='LGZ-zoom',
-                        color='green',
-                        masterlist=masterlist)
-    lofarcat['ID_flag'][M_large_faint_nhuge_n2masx_isol_lgzZ.mask] = 30
-    lofarcat['LGZ_flag'][M_large_faint_nhuge_n2masx_isol_lgzZ.mask] = 20
-    
-    M_large_faint_nhuge_n2masx_isol_lr = M_large_faint_nhuge_n2masx_isol.submask(nhuge_faint_flag == 2,
-                        'lr',
-                        edgelabel='ML',
-                        qlabel='Accept LR',
-                        color='blue',
-                        masterlist=masterlist)
-    lofarcat['ID_flag'][M_large_faint_nhuge_n2masx_isol_lr.mask] = 1
-    
-    M_large_faint_nhuge_n2masx_isol_nlr = M_large_faint_nhuge_n2masx_isol.submask(nhuge_faint_flag == 3,
-                        'nlr',
-                        edgelabel='n',
-                        qlabel='no match',
-                        color='red',
-                        masterlist=masterlist)
-    lofarcat['ID_flag'][M_large_faint_nhuge_n2masx_isol_nlr.mask] = 4
-    
+    #####
 
     # compact 
     M_small = M_all_clean2.submask(lofarcat['Maj'] <= size_large,
@@ -1224,7 +1086,7 @@ if __name__=='__main__':
     #_ =ax.hist(np.log10(1.+lofarcat['LR'][m_small_isol_nS]), bins=100, normed=True, histtype='step', label=l_small_isol_nS)
     _ =ax.hist(np.log10(1.+lofarcat['LR'][M_small_nisol.mask]), bins=100, normed=True, histtype='step', label=M_small_nisol.name.replace('_','\_'))
     _ =ax.hist(np.log10(1.+lofarcat['LR'][M_large.mask]), bins=100, normed=True, histtype='step', label=M_large.name.replace('_','\_'))
-    _ =ax.hist(np.log10(1.+lofarcat['LR'][M_large_faint_huge_complex.mask]), bins=100, normed=True, histtype='step', label=M_large_faint_huge_complex.name.replace('_','\_'))
+    _ =ax.hist(np.log10(1.+lofarcat['LR'][M_large_faint_complex.mask]), bins=100, normed=True, histtype='step', label=M_large_faint_complex.name.replace('_','\_'))
     _ =ax.hist(np.log10(1.+lofarcat['LR'][M_large_faint_nhuge_n2masx.mask]), bins=100, normed=True, histtype='step', label=M_large_faint_nhuge_n2masx.name.replace('_','\_'))
     ax.legend()
     ax.set_ylim(0,2)
