@@ -629,6 +629,7 @@ if __name__=='__main__':
                         qlabel='artefact',
                         color='gray',
                         masterlist=masterlist)
+    lofarcat['ID_flag'][M_large_faint_nhuge_n2masx_nisol_nclustered_art.mask] = -1
     
     M_large_faint_nhuge_n2masx_nisol_nclustered_lgz = M_large_faint_nhuge_n2masx_nisol_nclustered.submask(nhuge_faint_flag == 1,
                         'lgz',
@@ -681,6 +682,7 @@ if __name__=='__main__':
                         qlabel='artefact',
                         color='gray',
                         masterlist=masterlist)
+    lofarcat['ID_flag'][M_large_faint_nhuge_n2masx_isol_art.mask] = -1
     
     M_large_faint_nhuge_n2masx_isol_lgz = M_large_faint_nhuge_n2masx_isol.submask(nhuge_faint_flag == 1,
                         'lgz',
@@ -852,6 +854,7 @@ if __name__=='__main__':
                         edgelabel='Y',
                         color='orange',
                         masterlist=masterlist)
+    lofarcat['ID_flag'][M_small_nisol_nclustered_NNlarge_NNvc.mask] = 1
 
 
     # compact not isolated, nnlarge, nnbright
@@ -860,6 +863,7 @@ if __name__=='__main__':
                         edgelabel='N',
                         color='orange',
                         masterlist=masterlist)
+    lofarcat['ID_flag'][M_small_nisol_nclustered_NNlarge_NNnvc.mask] = 1
 
     # compact not isolated, nnsmall
     M_small_nisol_nclustered_NNsmall = M_small_nisol_nclustered.submask(lofarcat['NN_Maj'] <= size_large,
@@ -923,7 +927,6 @@ if __name__=='__main__':
                         #color='orange',
                         qlabel='0.1 < flux ratio < 10?',
                         masterlist=masterlist)
-    lofarcat['ID_flag'][M_small_nisol_nclustered_NNsmall_nlr_NNnlr.mask] = 5
 
     C1_simflux = (lofarcat['NN_Frat'] <= 10) & (lofarcat['NN_Frat'] > 0.1)
     M_small_nisol_nclustered_NNsmall_nlr_NNnlr_simflux = M_small_nisol_nclustered_NNsmall_nlr_NNnlr.submask(C1_simflux,
@@ -933,6 +936,7 @@ if __name__=='__main__':
                         #color='red',
                         qlabel='S1+S2 >= 50*(sep/100)**2 ?',
                         masterlist=masterlist)
+    lofarcat['ID_flag'][M_small_nisol_nclustered_NNsmall_nlr_NNnlr_simflux.mask] = 5
 
     M_small_nisol_nclustered_NNsmall_nlr_NNnlr_diffflux = M_small_nisol_nclustered_NNsmall_nlr_NNnlr.submask(~C1_simflux,
                         'diffflux',
@@ -941,6 +945,7 @@ if __name__=='__main__':
                         color='red',
                         qlabel='accept no LR',
                         masterlist=masterlist)
+    lofarcat['ID_flag'][M_small_nisol_nclustered_NNsmall_nlr_NNnlr_diffflux.mask] = 1
 
     C2_dist = ((lofarcat['NN_Total_flux']+lofarcat['Total_flux']) >= 50*(lofarcat['NN_sep']/100.)**2.)
     M_small_nisol_nclustered_NNsmall_nlr_NNnlr_simflux_sep = M_small_nisol_nclustered_NNsmall_nlr_NNnlr_simflux.submask(C2_dist,
@@ -950,6 +955,7 @@ if __name__=='__main__':
                         color='cyan',
                         qlabel='check?',
                         masterlist=masterlist)
+    lofarcat['ID_flag'][M_small_nisol_nclustered_NNsmall_nlr_NNnlr_simflux_sep.mask] = 5
 
     M_small_nisol_nclustered_NNsmall_nlr_NNnlr_simflux_nsep = M_small_nisol_nclustered_NNsmall_nlr_NNnlr_simflux.submask(~C2_dist,
                         'ndist',
@@ -958,6 +964,7 @@ if __name__=='__main__':
                         color='red',
                         qlabel='accept no LR?',
                         masterlist=masterlist)    
+    lofarcat['ID_flag'][M_small_nisol_nclustered_NNsmall_nlr_NNnlr_simflux_nsep.mask] = 1
     
     
     # other masks
