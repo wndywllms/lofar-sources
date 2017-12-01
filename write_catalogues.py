@@ -85,12 +85,11 @@ if __name__=='__main__':
     merge_out_file = os.path.join(path,'LOFAR_HBA_T1_DR1_merge_ID_v0.5.fits')
     merge_out_full_file = merge_out_file.replace('.fits','.full.fits')
 
-    lofarcat0 = Table.read(lofarcat_orig_file)
     lofarcat_sorted = Table.read(lofarcat_file_srt)
     lofarcat_sorted_antd = Table.read(lofarcat_file_srt)
     lgz_remove = [l.rstrip() for l in open(lgz_remove_file,'r').readlines()]
     
-    psmlcat = Table.read(psmlcat_file)
+    #psmlcat = Table.read(psmlcat_file)
     
     #lgz_compcat = Table.read(lgz_compcat_file)
     lgz_cat = Table.read(lgz_cat_file)
