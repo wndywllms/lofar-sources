@@ -516,15 +516,15 @@ if __name__=='__main__':
     lf_complex_zoom = (nhuge_faint_flag == 4)
     
     # bright galaxy
-    lf_bright =  (lofarcat['2MASX'] & (nhuge_2masx_flag==1)) 
+    lf_bright =  (lofarcat['2MASX'] & (nhuge_2masx_flag==1)) | \
+        (huge & (huge_faint_flag ==2))
     
     # no match possible
     lf_nomatch =  ( huge & (huge_faint_flag ==3)) | \
         (nhuge_faint_flag == 3)
     
     # good lr
-    lf_match =   (huge & (huge_faint_flag ==2)) |  \
-        (nhuge_faint_flag == 2)
+    lf_match =   (nhuge_faint_flag == 2)
     
     
     M_large_faint_artefact = M_large_faint.submask(lf_artefacts,
