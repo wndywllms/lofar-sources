@@ -550,8 +550,8 @@ if __name__=='__main__':
                         qlabel='LGZ-zoom',
                         color='green',
                         masterlist=masterlist)
-    lofarcat['ID_flag'][M_large_faint_complex.mask] = 30
-    lofarcat['LGZ_flag'][M_large_faint_complex.mask] = 20
+    lofarcat['ID_flag'][M_large_faint_complex_zoom.mask] = 30
+    lofarcat['LGZ_flag'][M_large_faint_complex_zoom.mask] = 20
     
     
     M_large_faint_match = M_large_faint.submask(lf_match,
