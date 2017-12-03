@@ -560,7 +560,7 @@ if __name__=='__main__':
                         qlabel='Accept ML\n(visually confirmed)',
                         color='blue',
                         masterlist=masterlist)
-    lofarcat['ID_flag'][M_large_faint_match.mask] = 2
+    lofarcat['ID_flag'][M_large_faint_match.mask] = 1
     
     M_large_faint_nomatch = M_large_faint.submask(lf_nomatch,
                         'nomatch',
@@ -1087,7 +1087,7 @@ if __name__=='__main__':
     _ =ax.hist(np.log10(1.+lofarcat['LR'][M_small_nisol.mask]), bins=100, normed=True, histtype='step', label=M_small_nisol.name.replace('_','\_'))
     _ =ax.hist(np.log10(1.+lofarcat['LR'][M_large.mask]), bins=100, normed=True, histtype='step', label=M_large.name.replace('_','\_'))
     _ =ax.hist(np.log10(1.+lofarcat['LR'][M_large_faint_complex.mask]), bins=100, normed=True, histtype='step', label=M_large_faint_complex.name.replace('_','\_'))
-    _ =ax.hist(np.log10(1.+lofarcat['LR'][M_large_faint_nhuge_n2masx.mask]), bins=100, normed=True, histtype='step', label=M_large_faint_nhuge_n2masx.name.replace('_','\_'))
+    #_ =ax.hist(np.log10(1.+lofarcat['LR'][M_large_faint_nhuge_n2masx.mask]), bins=100, normed=True, histtype='step', label=M_large_faint_nhuge_n2masx.name.replace('_','\_'))
     ax.legend()
     ax.set_ylim(0,2)
     ax.set_xlabel('$\log (1+LR)$')
