@@ -7,7 +7,9 @@ ID_flag
 1 - ML
 2 - 2MASX
 3 - LGZ
-30 - LGZ pending
+32 - LGZ v2 pending
+311 - lgz v1 - normal route
+312 - lgz v1 zoom
 4 - no id possible
 5 - TBC
 '''
@@ -78,16 +80,20 @@ if __name__=='__main__':
     # LGZ output
     #lgz_compcat_file = os.path.join(path,'LGZ_v0/HETDEX-LGZ-comps-v0.5.fits')
     #lgz_cat_file = os.path.join(path,'LGZ_v0/HETDEX-LGZ-cat-v0.5-filtered.fits') 
-    lgz_cat_file = os.path.join(path,'LGZ_v0/HETDEX-LGZ-cat-v0.5-filtered-zooms.fits') 
-    lgz_remove_file = os.path.join(path,'LGZ_v0/remove.txt')
+    lgz_cat_file = os.path.join(path,'lgz_v1/HETDEX-LGZ-cat-v0.6-filtered-zooms.fits') 
+    lgz_component_file = os.path.join(path,'lgz_v1/lgz_components.txt')
 
-    comp_out_file = os.path.join(path,'LOFAR_HBA_T1_DR1_merge_ID_v0.5.comp.fits')
-    merge_out_file = os.path.join(path,'LOFAR_HBA_T1_DR1_merge_ID_v0.5.fits')
+    comp_out_file = os.path.join(path,'LOFAR_HBA_T1_DR1_merge_ID_v0.6.comp.fits')
+    merge_out_file = os.path.join(path,'LOFAR_HBA_T1_DR1_merge_ID_v0.6.fits')
     merge_out_full_file = merge_out_file.replace('.fits','.full.fits')
 
     lofarcat_sorted = Table.read(lofarcat_file_srt)
     lofarcat_sorted_antd = Table.read(lofarcat_file_srt)
-    lgz_remove = [l.rstrip() for l in open(lgz_remove_file,'r').readlines()]
+    with open(lgz_component_file,'r') as f:
+        lgz_lines = f.readlines()
+    lgz_component = [l.rstrip().split()[0] for l in lgz_lines]
+    lgz_src = [l.rstrip().split()[1] for l in lgz_lines]
+    lgz_flag = [int(l.rstrip().split()[2]) for l in lgz_lines]
     
     #psmlcat = Table.read(psmlcat_file)
     
@@ -120,12 +126,12 @@ if __name__=='__main__':
 
     lgz_select = np.ones(len(lofarcat_sorted), dtype=bool)
     #for si,s in enumerate(lofarcat_sorted['Source_Name']):
-        #if s in lgz_remove:
+        #if s in lgz_component:
             #lgz_select[si] = False
-    lgz_remove = np.unique(lgz_remove)
-    tlgz_remove = Table([Column(lgz_remove,'Source_Name'), Column(np.ones(len(lgz_remove)),'LGZ_remove')])
+    lgz_component = np.unique(lgz_component)
+    tlgz_component = Table([Column(lgz_component,'Source_Name'), Column(np.ones(len(lgz_component)),'LGZ_remove')])
     lofarcat_sorted.sort('Source_Name')
-    tc = join(lofarcat_sorted, tlgz_remove, join_type='left')
+    tc = join(lofarcat_sorted, tlgz_component, join_type='left')
     tc['LGZ_remove'].fill_value = 0
     tc = tc.filled()
     tc.sort('Source_Name')
@@ -133,11 +139,13 @@ if __name__=='__main__':
 
     #import ipdb ; ipdb.set_trace()
 
-    print 'Removing {n:d} sources associated in LGZv0'.format(n=np.sum(~lgz_select))
+    print 'Removing {n:d} sources associated in LGZ v1'.format(n=np.sum(~lgz_select))
     lofarcat_sorted = lofarcat_sorted[lgz_select]
     # we don't know what their new names are
     lofarcat_sorted_antd['New_Source_Name'][~lgz_select] = 'LGZ'
-
+    for lc, ls in zip(lgz_component, lgz_src):
+        ind = np.where(lofarcat_sorted_antd['Source_Name'] == lc)[0]
+        lofarcat_sorted_antd['New_Source_Name'][ind] = ls
 
     ## remove artefacts
     # all the artefacts identified and visually confirmed in the flowchart process
@@ -191,17 +199,20 @@ if __name__=='__main__':
         
         #c.
         
-        st = SDSS.query_region(c,radius=0.5*t['Maj']*u.arcsec, photoobj_fields=['ra','dec','objID','petroR50_r','petroMag_r'])
-        st = st[(st['petroMag_r'] <20.) & (st['petroMag_r'] > 0 )] 
-        #print st['petroMag_r'].max()
-        c2 = SkyCoord(st['ra'],st['dec'], frame='icrs', unit='deg')
-        sep = c.separation(c2)
-        a = sep.argmin()
-        #print st
-        #print st[a]
-        snames[ti] = 'SDSS '+str(st['objID'][a])
-        sdss_ra[ti] = st['ra'][a]
-        sdss_dec[ti] = st['dec'][a]
+        try:
+            st = SDSS.query_region(c,radius=0.5*t['Maj']*u.arcsec, photoobj_fields=['ra','dec','objID','petroR50_r','petroMag_r'])
+            st = st[(st['petroMag_r'] <20.) & (st['petroMag_r'] > 0 )] 
+            #print st['petroMag_r'].max()
+            c2 = SkyCoord(st['ra'],st['dec'], frame='icrs', unit='deg')
+            sep = c.separation(c2)
+            a = sep.argmin()
+            #print st
+            #print st[a]
+            snames[ti] = 'SDSS '+str(st['objID'][a])
+            sdss_ra[ti] = st['ra'][a]
+            sdss_dec[ti] = st['dec'][a]
+        except:
+            print 'error - sdss', ra,dec
         
     
     #c = SkyCoord(lofarcat_sorted['RA'][sel2mass ][sdss_matches], lofarcat_sorted['DEC'][sel2mass ][sdss_matches], frame='icrs', unit='deg')
@@ -318,7 +329,17 @@ if __name__=='__main__':
     lgz_cat.rename_column('Assoc','LGZ_Assoc')
     lgz_cat.rename_column('Assoc_Qual','LGZ_Assoc_Qual')
     lgz_cat.rename_column('ID_Qual','LGZ_ID_Qual')
+    
     lgz_cat.add_column(Column(3*np.ones(len(lgz_cat),dtype=int),'ID_flag'))
+    for ls, lf in zip(lgz_src, lgz_flag):
+        ind = np.where(lgz_cat['Source_Name'] == ls)[0]
+        if lf == 1:
+            lgz_cat['ID_flag'][ind] = 311
+        elif lf == 2:
+            lgz_cat['ID_flag'][ind] = 312
+        else:
+            print 'error'
+        
 
     ## change None to ''
     lgz_cat['ID_name'][lgz_cat['ID_name']=='None'] = ''
@@ -339,6 +360,7 @@ if __name__=='__main__':
     if os.path.isfile(merge_out_full_file):
         os.remove(merge_out_full_file)
     mergecat.write(merge_out_full_file)
+
 
     ## throw away extra columns
     mergecat.keep_columns(['Source_Name', 'RA', 'E_RA', 'DEC', 'E_DEC', 'Peak_flux', 'E_Peak_flux', 'Total_flux', 'E_Total_flux', 'Maj', 'E_Maj', 'Min', 'E_Min', 'PA', 'E_PA', 'Isl_rms', 'S_Code', 'Mosaic_ID', 'ID_flag', 'ID_name', 'ID_ra', 'ID_dec', 'ML_LR', 'LGZ_Size', 'LGZ_Assoc', 'LGZ_Assoc_Qual', 'LGZ_ID_Qual'])
