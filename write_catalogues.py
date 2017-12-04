@@ -142,10 +142,15 @@ if __name__=='__main__':
     print 'Removing {n:d} sources associated in LGZ v1'.format(n=np.sum(~lgz_select))
     lofarcat_sorted = lofarcat_sorted[lgz_select]
     # we don't know what their new names are
-    lofarcat_sorted_antd['New_Source_Name'][~lgz_select] = 'LGZ'
-    for lc, ls in zip(lgz_component, lgz_src):
+    lofarcat_sorted_antd['New_Source_Name'][~lgz_select] = 'LGZ' # there shouldn't be any of these left afterwards!
+    for lc, ls, lf in zip(lgz_component, lgz_src, lgz_flag):
         ind = np.where(lofarcat_sorted_antd['Source_Name'] == lc)[0]
         lofarcat_sorted_antd['New_Source_Name'][ind] = ls
+        
+        if lf == 1:
+            lofarcat_sorted_antd['ID_flag'][ind] = 311
+        elif lf == 2:
+            lofarcat_sorted_antd['ID_flag'][ind] = 312
 
     ## remove artefacts
     # all the artefacts identified and visually confirmed in the flowchart process

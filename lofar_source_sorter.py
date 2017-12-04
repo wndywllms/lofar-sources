@@ -541,8 +541,9 @@ if __name__=='__main__':
                         qlabel='complex\n(LGZ)',
                         color='green',
                         masterlist=masterlist)
-    lofarcat['ID_flag'][M_large_faint_complex.mask] = 30
+    lofarcat['ID_flag'][M_large_faint_complex.mask] = 3210
     lofarcat['LGZ_flag'][M_large_faint_complex.mask] = 2
+    import ipdb ; ipdb.set_trace()
     
     M_large_faint_complex_zoom = M_large_faint.submask(lf_complex_zoom,
                         'lgzz',
@@ -550,7 +551,7 @@ if __name__=='__main__':
                         qlabel='LGZ-zoom',
                         color='green',
                         masterlist=masterlist)
-    lofarcat['ID_flag'][M_large_faint_complex_zoom.mask] = 30
+    lofarcat['ID_flag'][M_large_faint_complex_zoom.mask] = 3220
     lofarcat['LGZ_flag'][M_large_faint_complex_zoom.mask] = 20
     
     
@@ -689,7 +690,7 @@ if __name__=='__main__':
                         qlabel='complex\n(LGZ)',
                         color='green',
                         masterlist=masterlist)
-    lofarcat['ID_flag'][M_small_nisol_complex.mask] = 30
+    lofarcat['ID_flag'][M_small_nisol_complex.mask] = 3210
     lofarcat['LGZ_flag'][M_small_nisol_complex.mask] = 2
 
     M_small_nisol_nclustered = M_small_nisol.submask((lofarcat['NN5_sep'] > separation1) | ((lofarcat['NN5_sep'] <= separation1) & (clustered_flag == 3)),
