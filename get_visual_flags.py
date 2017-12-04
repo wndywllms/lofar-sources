@@ -74,6 +74,8 @@ tt.sort('Source_Name')
 tt.rename_column('visual_flag','Lclustered_flag')
 
 
+tt['Lclustered_flag'][tt['Source_Name']=='ILTJ135637.88+473205.2'] = 2
+
 lofarcat.add_column(tt['Lclustered_flag'])
 
 
